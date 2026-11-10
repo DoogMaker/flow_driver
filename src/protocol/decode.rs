@@ -13,10 +13,23 @@ pub struct StatusFeedbackFrame
 
 }
 
+pub fn unknow_decode(data: &[u8]) -> Option<[u8; 8]>
+{
+    if data.len() < 8 {
+        println!("data length must be 8");
+        return None;
+    }
+
+    let mut raw_bytes = [0u8; 8];
+    raw_bytes.copy_from_slice(&data[0..8]);
+    Some(raw_bytes)
+}
+
 pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 {
     if data.len() < 8 {
-        panic!("data length must be 8");
+        println!("data length must be 8");
+        return None;
     }
 
     let Some(system_state) = StatusFeedbackByte0::from_repr(data[0])
@@ -30,7 +43,8 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 
     let Some(model) = StatusFeedbackByte5::from_repr(data[5])
         else {
-            panic!("model is invalid")
+            println!("model is invalid");
+            return None;
         };
 
     let bus_voltage = i16::from_le_bytes([data[6], data[7]]) as f32 / BUSVOLTAGE;
@@ -55,12 +69,14 @@ pub struct FaultDetailsFrame
 pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
 {
     if data.len() < 8 {
-        panic!("data length must be 8");
+        println!("data length must be 8");
+        return None;
     }
 
     let Some(fault_code) = FaultDetailsByte0::from_repr(data[0])
         else {
-            panic!("fault_code is invalid")
+            println!("fault_code is invalid");
+            return None;
         };
 
     let fault_details: bool = data[1] == FaultDetailsByte1::VALIDSTATUS as u8;
@@ -102,13 +118,15 @@ pub struct ParameterResponseFrame
 pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
 {
     if data.len() < 8 {
-        panic!("data length must be 8");
+        println!("data length must be 8");
+        return None;
     }
 
     let Some(opcode_echo) =
         ParameterResponseByte0::from_repr(data[0])
         else {
-            panic!("opcode_echo is invalid")
+            println!("opcode_echo is invalid");
+            return None;
         };
 
     let Some(err_code) =
@@ -436,6 +454,9 @@ mod tests {
         assert_eq!(op, 0x85);
         assert_eq!(err, 1);
         assert_eq!(id, 0x0100);
+
+        let f = unknow_decode(&[0x0A,0x06,0x00,0x00,0x00,0x00,0x00,0x00]).unwrap();
+        assert!(f == [0x0A,0x06,0x00,0x00,0x00,0x00,0x00,0x00]);
 
 
     }

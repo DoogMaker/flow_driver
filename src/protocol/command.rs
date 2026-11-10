@@ -4,13 +4,13 @@ use super::encode::*;
 
 
 pub const StatusFeedbackFrameLow: u16 = AllFrameBasic::StatusFeedbackFrame as u16;
-pub const StatusFeedbackFrameHeigh: u16 = StatusFeedbackFrameLow + MAX_NODE_NUMBER as u16;
+pub const StatusFeedbackFrameHeigh: u16 = StatusFeedbackFrameLow + MAX_NODE_NUMBER as u16 + 1;
 
 pub const FaultDetailsFrameLow: u16 = AllFrameBasic::FaultDetailsFrame as u16;
-pub const FaultDetailsFrameHeigh: u16 = FaultDetailsFrameLow + MAX_NODE_NUMBER as u16;
+pub const FaultDetailsFrameHeigh: u16 = FaultDetailsFrameLow + MAX_NODE_NUMBER as u16 + 1;
 
 pub const ParameterResponseFrameLow: u16 = AllFrameBasic::ParameterResponseFrame as u16;
-pub const ParameterResponseFrameHeigh: u16 = ParameterResponseFrameLow + MAX_NODE_NUMBER as u16;
+pub const ParameterResponseFrameHeigh: u16 = ParameterResponseFrameLow + MAX_NODE_NUMBER as u16 + 1;
 
 pub type Models = SwitchModelsByte1;
 pub type Direction = SetDirectionByte1;
@@ -77,6 +77,52 @@ fn filter_frame_id(frame: u16) -> (u16, u16)
         _ => (0, 0),
     };
     (result, node_id)
+}
+
+fn match_status_feedback_frame(data: [u8; 8]) -> Option<StatusFeedbackFrame>
+{
+    let result = status_feedback_frame(&data);
+    result
+}
+
+fn match_fault_details_frame(data: [u8; 8]) -> Option<FaultDetailsFrame>
+{
+    let result = fault_details_frame(&data);
+    result
+}
+
+fn match_parameter_response_frame(data: [u8; 8]) -> Option<ParameterResponseFrame>
+{
+    let result = parameter_response_frame(&data);
+    result
+}
+
+pub enum ReturnMessage {
+    StatusFeedback(StatusFeedbackFrame),
+    FaultDetails(FaultDetailsFrame),
+    ParameterResponse(ParameterResponseFrame),
+}
+
+pub fn decode_recv_message(frame: u16, data: [u8; 8]) -> Option<(u16, ReturnMessage)>
+{
+    let (frame_type, node_id) = filter_frame_id(frame);
+    let message = match frame_type
+    {
+        FaultDetailsFrameLow =>
+            {match_fault_details_frame(data).map(ReturnMessage::FaultDetails)},
+        StatusFeedbackFrameLow =>
+            {match_status_feedback_frame(data).map(ReturnMessage::StatusFeedback)},
+        ParameterResponseFrameLow =>
+            {match_parameter_response_frame(data).map(ReturnMessage::ParameterResponse)},
+        _ => None,
+    };
+    message.map(|message| (node_id, message))
+}
+
+pub fn test_unknow_decode(data: [u8; 8]) -> Option<[u8; 8]>
+{
+    let result = unknow_decode(&data);
+    result
 }
 
 #[cfg(test)]
@@ -152,5 +198,25 @@ mod tests {
         let result = build_send_message(5, Command::build_general_parameters(Opcode::ResetDefault, None, None));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    }
+
+    #[test]
+    fn test_decode_message() {
+        let frame = ParameterResponseFrameLow + 3;
+        let response_data = [
+            [0x80, 0x00, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D],
+            [0x82, 0x05, 0x00, 0x01, 0x00, 0x00, 0xFA, 0x45],
+            [0x83, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+            [0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+            [0x85, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+        ];
+
+        for data in response_data {
+            let result = decode_recv_message(frame, data);
+            assert!(
+                matches!(result, Some((3, ReturnMessage::ParameterResponse(_)))),
+                "expected parameter response for data {data:02X?}"
+            );
+        }
     }
 }
