@@ -58,7 +58,7 @@ pub enum GeneralParametersByte1 {
     ResetDefault = 0x05,
 }
 
-#[repr(u16)]
+#[repr_cast(u16)]
 pub enum GeneralParametersByte23 {
     None = 0x0000,
     //0x01
@@ -255,7 +255,7 @@ bitflags! {
 //==============================================================================================
 pub const CONST_PARAMETERRESPONSEBYTE0: u8 = 0x80;
 
-#[repr(u8)]
+#[repr_cast(u8)]
 pub enum ParameterResponseByte0 {
     ReadEffectiveval = 0x00 | CONST_PARAMETERRESPONSEBYTE0,
     ReadTemporaryval = 0x01 | CONST_PARAMETERRESPONSEBYTE0,
@@ -265,7 +265,7 @@ pub enum ParameterResponseByte0 {
     SaveEffectiveval = 0x05 | CONST_PARAMETERRESPONSEBYTE0,
 }
 
-#[repr(u8)]
+#[repr_cast(u8)]
 pub enum ParameterResponseByte1 {
     SUCCESS = 0x00,
     INVALIDPARAM = 0x01,
@@ -283,7 +283,7 @@ pub enum ParameterResponseByte1 {
 
 pub type ParameterResponseByte23 = GeneralParametersByte23;
 
-#[repr(u32)]
+#[repr_cast(u32)]
 pub enum ParameterResponseByte47 {
     FaildNoWrite = 0x0000,
 }

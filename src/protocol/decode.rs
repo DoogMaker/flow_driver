@@ -3,7 +3,8 @@ use repr_cast::repr_cast;
 use bitflags::bitflags;
 
 
-struct StatusFeedbackFrame {
+pub struct StatusFeedbackFrame
+{
     system_state: StatusFeedbackByte0,
     rotation_speed: f32,
     current_a: f32,
@@ -12,7 +13,7 @@ struct StatusFeedbackFrame {
 
 }
 
-fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
+pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 {
     if data.len() < 8 {
         return None;
@@ -37,14 +38,15 @@ fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
     })
 }
 
-struct FaultDetailsFrame {
+pub struct FaultDetailsFrame
+{
     fault_code: FaultDetailsByte0,
     fault_mask_code: FaultDetailsByte23,
     drv8353_status1: Option<FaultDetailsByte45>,
     drv8353_status2: Option<FaultDetailsByte67>,
 }
 
-fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
+pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
 {
     if data.len() < 8 {
         return None;
@@ -73,4 +75,67 @@ fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
 
 }
 
+enum ParameterResponseFrameVal
+{
+    ParameterResponseByte47(ParameterResponseByte47),
+    GroupedBitmap2(GroupedBitmap2),
+    RawBytes([u8; 4]),
+}
+pub struct ParameterResponseFrame
+{
+    opcode_echo:ParameterResponseByte0,
+    err_code: ParameterResponseByte1,
+    parameter_id: ParameterResponseByte23,
+    val: ParameterResponseFrameVal,
+}
 
+pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
+{
+    if data.len() < 8 {
+        return None;
+    }
+
+    let Some(opcode_echo) =
+        ParameterResponseByte0::from_repr(data[0])
+        else {return None};
+    let Some(err_code) =
+        ParameterResponseByte1::from_repr(data[1])
+        else {return None};
+    let parameter_id: GeneralParametersByte23 =
+        ParameterResponseByte23::from_repr(u16::from_le_bytes(
+            [data[2], data[3]]
+            )
+        ).unwrap();
+
+    let val = match err_code
+    {
+        ParameterResponseByte1::SUCCESS => 
+            ParameterResponseFrameVal::ParameterResponseByte47(
+                ParameterResponseByte47::from_repr(
+                    u32::from_le_bytes(
+                        [data[4], data[5], data[6], data[7]]
+                    )
+                ).unwrap(),
+            ),
+
+        ParameterResponseByte1::APPLYREADBACKMISMATCH =>
+        ParameterResponseFrameVal::GroupedBitmap2(
+            GroupedBitmap2::from_bits_truncate(
+                u32::from_le_bytes(
+                    [data[4], data[5], data[6], data[7]
+                    ]
+                )
+            )
+        ),
+        _ => ParameterResponseFrameVal::RawBytes([data[4],data[5],data[6],data[7]]),
+        
+    };
+    
+
+    Some(ParameterResponseFrame {
+        opcode_echo,
+        err_code,
+        parameter_id,
+        val,
+    })
+}

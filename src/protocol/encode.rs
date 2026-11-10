@@ -5,7 +5,7 @@ use crate::protocol::constants::GeneralParametersByte23::PageInvalidMaskA;
 use super::constants::*;
 use repr_cast::repr_cast;
 
-fn command_frame_id(node_id: u8) -> u16
+pub fn command_frame_id(node_id: u8) -> u16
 {
     if node_id > MAX_NODE_NUMBER
     {
@@ -14,7 +14,7 @@ fn command_frame_id(node_id: u8) -> u16
     AllFrameBasic::CommandFrame as u16 + node_id as u16
 }
 
-fn build_speed(val: f32) -> [u8; 8]
+pub fn build_speed(val: f32) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     let speed: i16 = (val * TARGETSPEED).round() as i16;
@@ -24,17 +24,17 @@ fn build_speed(val: f32) -> [u8; 8]
     data
 }
 
-fn build_openloop_voltage(val: f32) -> [u8; 8]
+pub fn build_openloop_voltage(val: f32) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     let voltage: i16 = (val * OPENLOOPVOLTAGE).round() as i16;
 
-    data[0] = EncodeCommand::TargetSpeed as u8;
+    data[0] = EncodeCommand::OpenloopVoltage as u8;
     data[1..3].copy_from_slice(&voltage.to_le_bytes());
     data
 }
 
-fn build_switch_models(model: SwitchModelsByte1) -> [u8; 8]
+pub fn build_switch_models(model: SwitchModelsByte1) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     data[0] = EncodeCommand::SwitchModels as u8;
@@ -42,7 +42,7 @@ fn build_switch_models(model: SwitchModelsByte1) -> [u8; 8]
     data
 }
 
-fn build_set_direction(direction: SetDirectionByte1) -> [u8; 8]
+pub fn build_set_direction(direction: SetDirectionByte1) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     data[0] = EncodeCommand::SetDirection as u8;
@@ -50,7 +50,7 @@ fn build_set_direction(direction: SetDirectionByte1) -> [u8; 8]
     data
 }
 
-fn build_torque(val: f32) -> [u8; 8]
+pub fn build_torque(val: f32) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     let torque: i16 = (val * TARGETTORQUE).round() as i16;
@@ -60,7 +60,7 @@ fn build_torque(val: f32) -> [u8; 8]
     data
 }
 
-fn build_state(val: f32) -> [u8; 8]
+pub fn build_state(val: f32) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     let state: i32 = (val * TARGETSTATE).round() as i32;
@@ -70,21 +70,21 @@ fn build_state(val: f32) -> [u8; 8]
     data
 }
 
-fn build_keepalive() -> [u8; 8]
+pub fn build_keepalive() -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     data[0] = EncodeCommand::KeepAlive as u8;
     data
 }
 
-fn build_askstatus() -> [u8; 8]
+pub fn build_askstatus() -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     data[0] = EncodeCommand::AskStatusFeedback as u8;
     data
 }
 
-fn build_set_nodenum(node_number: u8) -> [u8; 8]
+pub fn build_set_nodenum(node_number: u8) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
     data[0] = EncodeCommand::SetNodeNumber as u8;
@@ -92,7 +92,7 @@ fn build_set_nodenum(node_number: u8) -> [u8; 8]
     data
 }
 
-fn build_general_parameters(
+pub fn build_general_parameters(
     byte1: GeneralParametersByte1,
     byte23: Option<GeneralParametersByte23>,
     val: Option<f32>
@@ -104,12 +104,12 @@ fn build_general_parameters(
 
     if let Some(parameter) = byte23
     {
-        data[2] = parameter as u8;
+        data[2..4].copy_from_slice(&(parameter as u16).to_le_bytes());
     }
 
     if let Some(val1) = val
     {
-        data[3..7].copy_from_slice(&val1.to_le_bytes());
+        data[4..8].copy_from_slice(&val1.to_le_bytes());
     } 
 
     data
@@ -122,7 +122,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn decode_command_test() {
+    fn test_command_frame_id() {
 
         let result: u16 = command_frame_id(1);
         assert_eq!(result, 0x101);
@@ -134,14 +134,14 @@ mod tests {
         assert_eq!(result, 0x103);
 
         let result: u16 = command_frame_id(4);
-        assert_eq!(result, 0x106);
+        assert_eq!(result, 0x104);
 
         let result: u16 = command_frame_id(5);
-        assert_eq!(result, 0x10C);
+        assert_eq!(result, 0x105);
     }
 
     #[test]
-    fn buld_send_code() {
+    fn test_buld_send_code() {
         let result = build_speed(10.0);
         assert!(result.to_vec() == vec![0x01, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
