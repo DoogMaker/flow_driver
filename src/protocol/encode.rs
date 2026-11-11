@@ -5,13 +5,13 @@ use crate::protocol::constants::GeneralParametersByte23::PageInvalidMaskA;
 use super::constants::*;
 use repr_cast::repr_cast;
 
-pub fn command_frame_id(node_id: u8) -> u16
+pub fn command_frame_id(node_id: u32) -> u32
 {
     if node_id > MAX_NODE_NUMBER
     {
         panic!("node_id must be less than 12");
     }
-    AllFrameBasic::CommandFrame as u16 + node_id as u16
+    AllFrameBasic::CommandFrame as u32 + node_id as u32
 }
 
 pub fn build_speed(val: f32) -> [u8; 8]
@@ -124,19 +124,19 @@ mod tests {
     #[test]
     fn test_command_frame_id() {
 
-        let result: u16 = command_frame_id(1);
+        let result: u32 = command_frame_id(1);
         assert_eq!(result, 0x101);
 
-        let result: u16 = command_frame_id(2);
+        let result: u32 = command_frame_id(2);
         assert_eq!(result, 0x102);
 
-        let result: u16 = command_frame_id(3);
+        let result: u32 = command_frame_id(3);
         assert_eq!(result, 0x103);
 
-        let result: u16 = command_frame_id(4);
+        let result: u32 = command_frame_id(4);
         assert_eq!(result, 0x104);
 
-        let result: u16 = command_frame_id(5);
+        let result: u32 = command_frame_id(5);
         assert_eq!(result, 0x105);
     }
 

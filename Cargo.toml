@@ -6,4 +6,4 @@ edition = "2024"
 [dependencies]
 bitflags = "2.13.2"
 repr_cast = "0.1.0"
-tokio-socketcan = "0.3.1"
+socketcan = "4.0.0"

@@ -32,9 +32,9 @@ pub enum Command
         Id,
         Option<f32>),
 }
-pub fn build_send_message(node_id: u8, command: Command) -> (u16, [u8; 8])
+pub fn build_send_message(node_id: u32, command: Command) -> (u32, [u8; 8])
 {
-    let frame_id: u16 = command_frame_id(node_id);
+    let frame_id: u32 = command_frame_id(node_id);
     let data: [u8; 8] = match command
     {
         Command::build_speed(val) =>

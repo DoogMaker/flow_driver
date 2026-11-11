@@ -5,7 +5,7 @@ pub const TARGETSPEED: f32 = 10.0;
 pub const OPENLOOPVOLTAGE: f32 = 100.0;
 pub const TARGETTORQUE: f32 = 100.0;
 pub const TARGETSTATE: f32 = 10000.0;
-pub const MAX_NODE_NUMBER: u8 = 12;
+pub const MAX_NODE_NUMBER: u32 = 12;
 pub const CURRENT_A: f32 = 100.0;
 
 #[repr(u16)]
