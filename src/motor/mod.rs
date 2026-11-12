@@ -1,2 +1,1 @@
-mod driver;
-pub use driver::Motor;
+pub(crate) mod driver;

@@ -1,18 +1,24 @@
-use std::thread;
+use std::thread::{self, JoinHandle};
 use std::time::{Duration,Instant};
-use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, Frame};
-use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender, sync_channel};
-use crate::protocol::command::{build_send_message, Command, filter_frame_id};
-use super::constants::{ALIVE_TIMEOUT, SEND_TIMEOUT, INIT_ITER};
 use std::collections::VecDeque;
-use std::sync::{Arc, Mutex};
 use std::io::Result;
+use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender, sync_channel};
+
+use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, Frame};
+
+use crate::protocol::command::{build_send_message, Command, filter_frame_id};
+
+use super::constants::{ALIVE_TIMEOUT, SEND_TIMEOUT, INIT_ITER, RECV_TIMEOUT};
+
 
 pub struct CanBus {
-    pub send_tx: SyncSender<CanFrame>,
+    pub send_tx: SyncSender<(u32, [u8; 8])>,
     pub classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
     pub stop_flags: Arc<AtomicBool>,
+    send_handle: Mutex<Option<JoinHandle<()>>>,
+    recv_handle: Mutex<Option<JoinHandle<()>>>,
 }
 
 impl CanBus {
@@ -24,7 +30,7 @@ impl CanBus {
         let mut recv_socket = can_init(&can_num)
             .expect("failed open can");
 
-        let (send_tx, send_rx) = sync_channel::<CanFrame>(100);
+        let (send_tx, send_rx) = sync_channel::<(u32, [u8; 8])>(100);
 
         let stop_flags: Arc<AtomicBool> = Arc::new(AtomicBool::new(false));
 
@@ -41,14 +47,14 @@ impl CanBus {
 
         // move rx into send-thread
         let thread_stop_flags = Arc::clone(&stop_flags);
-        thread::spawn(
+        let send_handle: JoinHandle<()> = thread::spawn(
             move || {
             send_thread(send_rx, motor_start, motor_stop, &mut send_socket, thread_stop_flags);
         });
 
         let thread_stop_flags = Arc::clone(&stop_flags);
         let classed_msgs: Arc<Mutex<Vec<MotorMsg>>> = Arc::clone(&classedmsgs);
-        thread::spawn(
+        let recv_handle = thread::spawn(
             move || {
                 recv_thread(classed_msgs, &mut recv_socket, thread_stop_flags);
         });
@@ -57,11 +63,25 @@ impl CanBus {
             send_tx, 
             classed_msgs: classedmsgs,
             stop_flags,
+            send_handle: Mutex::new(Some(send_handle)),
+            recv_handle: Mutex::new(Some(recv_handle)),
         }
     }
 
-    fn canbus_close(&self) {
+    pub fn canbus_close(&self) {
         self.stop_flags.store(true, Ordering::SeqCst);
+
+        let mut send_handle = self.send_handle.lock().unwrap();
+        let mut recv_handle = self.recv_handle.lock().unwrap();
+
+        if let Some(handle) = send_handle.take() {
+            handle.join().unwrap();
+        }
+
+        if let Some(handle) = recv_handle.take() {
+            handle.join().unwrap();
+        }
+        println!("All thread has closed")
     }
 }
 
@@ -94,7 +114,7 @@ fn send_can_keepalive_frame(node_id: u32, socket: &mut CanSocket) {
 }
 //=====================================
 
-pub struct MotorMsg {
+struct MotorMsg {
     pub id: u32,
     pub return_type: VecDeque<u32>,
     pub data_queue: VecDeque<[u8; 8]>,
@@ -104,7 +124,7 @@ fn recv_can_frame(
     socket: &mut CanSocket
 ) -> Result<(u32, u32, [u8; 8])> {
 
-    let can_frame: CanFrame = socket.read_frame()?;
+    let can_frame: CanFrame = socket.read_frame_timeout(RECV_TIMEOUT)?;
     let (return_type, id) = filter_frame_id(can_frame.raw_id() as u16);
     let mut data = [0u8; 8];
     data.copy_from_slice(can_frame.data());
@@ -115,7 +135,7 @@ fn recv_can_frame(
 //=====================================
 
 fn send_thread(
-    rx: Receiver<CanFrame>,
+    rx: Receiver<(u32, [u8; 8])>,
     motor_start: u32,
     motor_stop: u32,
     socket1: &mut CanSocket,
@@ -154,7 +174,8 @@ fn send_thread(
         let (min_id, min_timeout) = min_id_and_timeout.expect("motor init Err");
 
         match rx.recv_timeout(min_timeout) {
-            Ok(frame) => {
+            Ok((id, data)) => {
+                let frame: CanFrame = make_can_frame(id, &data);
                 send_can_frame(&frame, socket1).unwrap();
                 if let Some(motor) = all_heartbeat_time
                     .iter_mut()
@@ -193,8 +214,8 @@ fn recv_thread(
         }
         let (id,return_type, data) = match recv_can_frame(socket1) {
             Ok(frame) => frame,
-            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
-                thread::sleep(Duration::from_millis(10));
+            Err(error) if error.kind() == std::io::ErrorKind::TimedOut => {
+                // thread::sleep(Duration::from_millis(10));
                 continue;
             }
             Err(error) => {
@@ -217,5 +238,4 @@ fn recv_thread(
             .ok_or("unknown id");
     }
     drop(socket1);
-
 }

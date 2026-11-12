@@ -1,9 +1,7 @@
-use std::collections::VecDeque;
-use std::ptr::dangling;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
+use socketcan::{CanFrame, EmbeddedFrame, StandardId};
 use crate::can::transport::{CanBus, MotorMsg};
 use crate::protocol::command::{self, ReturnMessage};
-use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, Frame};
 
 pub struct Motor {
     id: u32,
@@ -27,8 +25,8 @@ impl Motor {
     }
 
     // send messages -> tx
-    pub fn send_messages(&self, canframe: CanFrame){
-        self.can_bus.send_tx.send(canframe);
+    pub fn send_messages(&self, data: (u32, [u8; 8])){
+        let _ = self.can_bus.send_tx.send(data);
     }
 
     pub fn recv_msg(&self) -> Option<(u32, [u8; 8])>{

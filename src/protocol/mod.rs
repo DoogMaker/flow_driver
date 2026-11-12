@@ -1,4 +1,4 @@
-mod constants;
-mod encode;
-mod decode;
-pub(crate) mod command;
+pub(crate) mod constants;
+pub(crate) mod encode;
+pub(crate) mod decode;
+pub mod command;
