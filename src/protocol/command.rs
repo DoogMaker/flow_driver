@@ -61,7 +61,7 @@ pub fn build_send_message(node_id: u32, command: Command) -> (u32, [u8; 8])
     (frame_id, data)
 }
 
-fn filter_frame_id(frame: u16) -> (u16, u16)
+pub fn filter_frame_id(frame: u16) -> (u16, u16)
 {
     let (result, node_id) = match frame
     {
@@ -103,10 +103,10 @@ pub enum ReturnMessage {
     ParameterResponse(ParameterResponseFrame),
 }
 
-pub fn decode_recv_message(frame: u16, data: [u8; 8]) -> Option<(u16, ReturnMessage)>
+pub fn decode_recv_message(return_type: u32, data: [u8; 8]) -> Option<(u32, ReturnMessage)>
 {
-    let (frame_type, node_id) = filter_frame_id(frame);
-    let message = match frame_type
+    // let (frame_type, node_id) = filter_frame_id(frame);
+    let message = match return_type as u16
     {
         FaultDetailsFrameLow =>
             {match_fault_details_frame(data).map(ReturnMessage::FaultDetails)},
@@ -116,7 +116,7 @@ pub fn decode_recv_message(frame: u16, data: [u8; 8]) -> Option<(u16, ReturnMess
             {match_parameter_response_frame(data).map(ReturnMessage::ParameterResponse)},
         _ => None,
     };
-    message.map(|message| (node_id, message))
+    message.map(|message| (return_type, message))
 }
 
 pub fn test_unknow_decode(data: [u8; 8]) -> Option<[u8; 8]>
@@ -212,7 +212,7 @@ mod tests {
         ];
 
         for data in response_data {
-            let result = decode_recv_message(frame, data);
+            let result = decode_recv_message(frame as u32, data);
             assert!(
                 matches!(result, Some((3, ReturnMessage::ParameterResponse(_)))),
                 "expected parameter response for data {data:02X?}"
