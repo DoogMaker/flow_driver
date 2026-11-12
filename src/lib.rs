@@ -1,3 +1,3 @@
-mod protocol;
-mod can;
-mod motor;
+pub mod protocol;
+pub mod can;
+pub mod motor;

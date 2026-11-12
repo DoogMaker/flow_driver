@@ -5,14 +5,17 @@ use crate::can::transport::{CanBus, MotorMsg};
 use crate::protocol::command::{self, ReturnMessage};
 use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, Frame};
 
-struct Motor {
+pub struct Motor {
     id: u32,
-    can_bus: CanBus,
+    can_bus: Arc<CanBus>,
 }
 
 impl Motor {
-    pub fn new (id: u32, can_bus: CanBus) -> Self {
-        Self { id, can_bus }
+    pub fn new (id: u32, bus: Arc<CanBus>) -> Self {
+        Self { 
+            id,
+            can_bus: Arc::clone(&bus),
+        }
     }
 
     // build send messages 
@@ -53,23 +56,13 @@ impl Motor {
     }
 
     pub fn print_msg(msg: Option<ReturnMessage>) {
-        if let Some(x) = msg {
-            pub fn print_msg(msg: Option<ReturnMessage>) {
-                match msg {
-                    Some(ReturnMessage::FaultDetails(frame)) => {
-                        println!("fault: {frame:?}");
-                    }
-                    Some(ReturnMessage::StatusFeedback(frame)) => {
-                        println!("status: {frame:?}");
-                    }
-                    Some(ReturnMessage::ParameterResponse(frame)) => {
-                        println!("parameter: {frame:?}");
-                    }
-                    None => {
-                        println!("decode Err");
-                    }
-                }
-            }
+
+        match msg {
+            Some(ReturnMessage::FaultDetails(frame)) => println!("fault: {frame:?}"),
+            Some(ReturnMessage::StatusFeedback(frame)) => println!("status: {frame:?}"),
+            Some(ReturnMessage::ParameterResponse(frame)) => println!("parameter: {frame:?}"),
+            None => println!("decode Err"),
         }
+        
     }
 }
