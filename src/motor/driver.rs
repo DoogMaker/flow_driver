@@ -1,0 +1,75 @@
+use std::collections::VecDeque;
+use std::ptr::dangling;
+use std::sync::{Arc, Mutex};
+use crate::can::transport::{CanBus, MotorMsg};
+use crate::protocol::command::{self, ReturnMessage};
+use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, Frame};
+
+struct Motor {
+    id: u32,
+    can_bus: CanBus,
+}
+
+impl Motor {
+    pub fn new (id: u32, can_bus: CanBus) -> Self {
+        Self { id, can_bus }
+    }
+
+    // build send messages 
+    pub fn build_send_message(&self, cmd: command::Command) -> CanFrame {
+        let (id, data) = command::build_send_message(self.id, cmd);
+        let std_id = StandardId::new(id as u16).unwrap();
+        let can_frame = CanFrame::new(std_id, &data).unwrap();
+        can_frame
+    }
+
+    // send messages -> tx
+    pub fn send_messages(&self, canframe: CanFrame){
+        self.can_bus.send_tx.send(canframe);
+    }
+
+    pub fn recv_msg(&self) -> Option<(u32, [u8; 8])>{
+        let mut msg = self.can_bus.classed_msgs.lock().unwrap();
+
+        msg
+            .iter_mut()
+            .find(|x| x.id == self.id)
+            .and_then(
+                |x: &mut MotorMsg| {
+                    let return_type = x.return_type.pop_front()?;
+                    let msg = x.data_queue.pop_front()?;
+                    Some((return_type, msg))
+                }
+            )
+    }
+
+    pub fn decode_msg(&self, return_type: u32, msg: [u8; 8]) -> Option<ReturnMessage> {
+        if let Some((_, return_decode)) = command::decode_recv_message(return_type, msg) {
+            Some(return_decode)
+        } else {
+            println!("decode Err");
+            None
+        }
+    }
+
+    pub fn print_msg(msg: Option<ReturnMessage>) {
+        if let Some(x) = msg {
+            pub fn print_msg(msg: Option<ReturnMessage>) {
+                match msg {
+                    Some(ReturnMessage::FaultDetails(frame)) => {
+                        println!("fault: {frame:?}");
+                    }
+                    Some(ReturnMessage::StatusFeedback(frame)) => {
+                        println!("status: {frame:?}");
+                    }
+                    Some(ReturnMessage::ParameterResponse(frame)) => {
+                        println!("parameter: {frame:?}");
+                    }
+                    None => {
+                        println!("decode Err");
+                    }
+                }
+            }
+        }
+    }
+}

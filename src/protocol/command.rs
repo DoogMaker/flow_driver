@@ -97,6 +97,7 @@ fn match_parameter_response_frame(data: [u8; 8]) -> Option<ParameterResponseFram
     result
 }
 
+#[derive(Debug)]
 pub enum ReturnMessage {
     StatusFeedback(StatusFeedbackFrame),
     FaultDetails(FaultDetailsFrame),

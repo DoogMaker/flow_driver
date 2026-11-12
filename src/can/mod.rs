@@ -1,2 +1,2 @@
-mod transport;
+pub(crate) mod transport;
 mod constants;

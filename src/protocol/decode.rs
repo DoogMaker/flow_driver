@@ -3,6 +3,7 @@ use repr_cast::repr_cast;
 use bitflags::bitflags;
 
 
+#[derive(Debug)]
 pub struct StatusFeedbackFrame
 {
     system_state: StatusFeedbackByte0,
@@ -58,12 +59,13 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
     })
 }
 
+#[derive(Debug)]
 pub struct FaultDetailsFrame
 {
-    fault_code: FaultDetailsByte0,
-    fault_mask_code: FaultDetailsByte23,
-    drv8353_status1: Option<FaultDetailsByte45>,
-    drv8353_status2: Option<FaultDetailsByte67>,
+    pub fault_code: FaultDetailsByte0,
+    pub fault_mask_code: FaultDetailsByte23,
+    pub drv8353_status1: Option<FaultDetailsByte45>,
+    pub drv8353_status2: Option<FaultDetailsByte67>,
 }
 
 pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
@@ -100,6 +102,7 @@ pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
 
 }
 
+#[derive(Debug)]
 enum ParameterResponseFrameVal
 {
     ParameterResponseByte47(ParameterResponseByte47),
@@ -107,6 +110,8 @@ enum ParameterResponseFrameVal
     RawBytes([u8; 4]),
     val(f32),
 }
+
+#[derive(Debug)]
 pub struct ParameterResponseFrame
 {
     opcode_echo:ParameterResponseByte0,

@@ -31,6 +31,7 @@ pub enum EncodeCommand {
 }
 
 #[repr_cast(u8)]
+#[derive(Debug)]
 pub enum SwitchModelsByte1 {
     IDLE = 0x00,
     Openloop = 0x01,
@@ -59,6 +60,7 @@ pub enum GeneralParametersByte1 {
 }
 
 #[repr_cast(u16)]
+#[derive(Debug)]
 pub enum GeneralParametersByte23 {
     None = 0x0000,
     //0x01
@@ -168,6 +170,7 @@ pub enum FeedBackFrame {
 }
 
 #[repr_cast(u8)]
+#[derive(Debug)]
 pub enum StatusFeedbackByte0 {
     IDLE = 0x00,
     Running = 0x01,
@@ -181,6 +184,7 @@ pub const BUSVOLTAGE: f32 = 10.0;
 pub type StatusFeedbackByte5 = SwitchModelsByte1;
 
 #[repr_cast(u8)]
+#[derive(Debug)]
 pub enum FaultDetailsByte0 {
     None = 0x00,
     HARDWARE = 0x01,
@@ -204,6 +208,7 @@ pub enum FaultDetailsByte1 {
 }
 
 bitflags! {
+    #[derive(Debug)]
     pub struct FaultDetailsByte23: u16
     {
         const HARDWARE        = 0x0002;
@@ -220,6 +225,7 @@ bitflags! {
         const COMMTIMEOUT    = 0x1000;
     }
 
+    #[derive(Debug)]
     pub struct FaultDetailsByte45: u16
     {
         const NONE     = 0x0000;
@@ -235,6 +241,7 @@ bitflags! {
         const VDSOCP  = 0x0200;
         const FAULT    = 0x0400;
     }
+    #[derive(Debug)]
     pub struct FaultDetailsByte67: u16
     {
         const NONE     = 0x0000;
@@ -256,6 +263,7 @@ bitflags! {
 pub const CONST_PARAMETERRESPONSEBYTE0: u8 = 0x80;
 
 #[repr_cast(u8)]
+#[derive(Debug)]
 pub enum ParameterResponseByte0 {
     ReadEffectiveval = 0x00 | CONST_PARAMETERRESPONSEBYTE0,
     ReadTemporaryval = 0x01 | CONST_PARAMETERRESPONSEBYTE0,
@@ -266,6 +274,7 @@ pub enum ParameterResponseByte0 {
 }
 
 #[repr_cast(u8)]
+#[derive(Debug)]
 pub enum ParameterResponseByte1 {
     SUCCESS = 0x00,
     INVALIDPARAM = 0x01,
@@ -284,6 +293,7 @@ pub enum ParameterResponseByte1 {
 pub type ParameterResponseByte23 = GeneralParametersByte23;
 
 #[repr_cast(u32)]
+#[derive(Debug)]
 pub enum ParameterResponseByte47 {
     FaildNoWrite = 0x0000,
 }
@@ -297,7 +307,7 @@ bitflags! {
         const CHECKSUM_MISMATCH = 1 << 3;  // 校验和不符
         const CONTENT_INVALID   = 1 << 4;  // 内容校验不通过
     }
-
+    #[derive(Debug)]
     pub struct GroupedBitmap2: u32 {
         const NONE                  = 0;
         const SPEED                 = 1 << 1;  // 0x0000_0002

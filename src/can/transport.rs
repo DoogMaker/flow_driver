@@ -1,14 +1,15 @@
 use std::thread;
 use std::time::{Duration,Instant};
-use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, socket, Frame};
-use std::sync::mpsc::{Receiver, RecvTimeoutError, Sender, SyncSender, sync_channel};
-use crate::protocol::command::{build_send_message, Command, decode_recv_message, filter_frame_id};
+use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Socket, StandardId, Frame};
+use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender, sync_channel};
+use crate::protocol::command::{build_send_message, Command, filter_frame_id};
 use super::constants::{ALIVE_TIMEOUT, SEND_TIMEOUT, INIT_ITER};
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
 
-struct CanBus {
-    send_tx: SyncSender<CanFrame>,
+pub struct CanBus {
+    pub send_tx: SyncSender<CanFrame>,
+    pub classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
 }
 
 impl CanBus {
@@ -38,14 +39,15 @@ impl CanBus {
             send_thread(send_rx, motor_start, motor_stop, &mut send_socket);
         });
 
+        let classed_msgs: Arc<Mutex<Vec<MotorMsg>>> = Arc::clone(&classedmsgs);
         thread::spawn(
             move || {
-                let classed_msgs: Arc<Mutex<Vec<MotorMsg>>> = Arc::clone(&classedmsgs);
                 recv_thread(classed_msgs, &mut recv_socket);
         });
 
         Self { 
             send_tx, 
+            classed_msgs: classedmsgs,
         }
     }
 }
@@ -79,10 +81,10 @@ fn send_can_keepalive_frame(node_id: u32, socket: &mut CanSocket) {
 }
 //=====================================
 
-struct MotorMsg {
-    id: u32,
-    return_type: VecDeque<u32>,
-    data_queue: VecDeque<[u8; 8]>,
+pub struct MotorMsg {
+    pub id: u32,
+    pub return_type: VecDeque<u32>,
+    pub data_queue: VecDeque<[u8; 8]>,
 }
 
 fn recv_can_frame(
