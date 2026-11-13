@@ -15,8 +15,26 @@ fn main(){
     let msg = motor2.build_send_message(Command::build_askstatus);
     motor2.send_messages(msg);
 
-    motor1.recv_msg();
-    motor2.recv_msg();
+    thread::sleep(Duration::from_secs(1));
+
+    let msg1 = match motor1.recv_msg() {
+        Some((return_type, msg)) => (return_type, msg),
+        None => {
+            println!("recv_msg None");
+            (0, [0; 8])
+        }
+    };
+    motor1.decode_msg(msg1.0, msg1.1);
+
+    let msg2 = match motor2.recv_msg() {
+        Some((return_type, msg)) => (return_type, msg),
+        None => {
+            println!("recv_msg None");
+            (0, [0; 8])
+        }
+    };
+    motor1.decode_msg(msg2.0, msg2.1);
+
 
     thread::sleep(Duration::from_secs(5));
 
