@@ -114,7 +114,7 @@ fn send_can_keepalive_frame(node_id: u32, socket: &mut CanSocket) {
 }
 //=====================================
 
-struct MotorMsg {
+pub struct MotorMsg {
     pub id: u32,
     pub return_type: VecDeque<u32>,
     pub data_queue: VecDeque<[u8; 8]>,
