@@ -4,7 +4,7 @@ use flow_driver::Command;
 use std::sync::{Arc};
 
 fn main(){
-    let canbus1 = Arc::new(flow_driver::CanBus::canbus_init(1, 2, "can0".to_string()));
+    let canbus1 = Arc::new(flow_driver::CanBus::canbus_init(1, 2, "can1".to_string()));
 
     let motor1 = flow_driver::Motor::new(1, canbus1.clone());
     let motor2 = flow_driver::Motor::new(2, canbus1.clone());
