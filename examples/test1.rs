@@ -15,6 +15,9 @@ fn main(){
     let msg = motor2.build_send_message(Command::build_askstatus);
     motor2.send_messages(msg);
 
+    motor1.recv_msg();
+    motor2.recv_msg();
+
     thread::sleep(Duration::from_secs(5));
 
     canbus1.canbus_close();
