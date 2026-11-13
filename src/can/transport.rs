@@ -224,18 +224,21 @@ fn recv_thread(
             }
         };
 
-        println!("Recv a msg, ID: {id}, Type: {return_type}");
+        if id != 0 {
 
-        let mut classed_msgs = classed_msgs.lock().unwrap();
+            println!("Recv a msg, ID: {id}, Type: {return_type}");
 
-        let classed_msg = classed_msgs
-            .iter_mut()
-            .find(|x| x.id == id) 
-            .map(|x| {
-                x.data_queue.push_back(data);
-                x.return_type.push_back(return_type);
-            })                    
-            .ok_or("unknown id");
+            let mut classed_msgs = classed_msgs.lock().unwrap();
+
+            let classed_msg = classed_msgs
+                .iter_mut()
+                .find(|x| x.id == id) 
+                .map(|x| {
+                    x.data_queue.push_back(data);
+                    x.return_type.push_back(return_type);
+                })                    
+                .ok_or("unknown id");
+        }
     }
     drop(socket1);
 }
