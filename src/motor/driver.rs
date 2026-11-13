@@ -17,11 +17,9 @@ impl Motor {
     }
 
     // build send messages 
-    pub fn build_send_message(&self, cmd: command::Command) -> CanFrame {
+    pub fn build_send_message(&self, cmd: command::Command) -> (u32, [u8; 8]) {
         let (id, data) = command::build_send_message(self.id, cmd);
-        let std_id = StandardId::new(id as u16).unwrap();
-        let can_frame = CanFrame::new(std_id, &data).unwrap();
-        can_frame
+        (id, data)
     }
 
     // send messages -> tx
