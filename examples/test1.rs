@@ -82,7 +82,7 @@ fn main(){
     motor2.send_messages(msg);
 
 
-    thread::sleep(Duration::from_micros(500));
+    thread::sleep(Duration::from_secs(3));
 
 
     let msg = motor1.build_send_message(Command::build_openloop_voltage(0.0));
@@ -125,4 +125,22 @@ fn main(){
 
     canbus1.canbus_close();
     println!("clse success!");
+
+    let msg1 = match motor1.recv_msg() {
+        Some((return_type, msg)) => (return_type, msg),
+        None => {
+            println!("recv_msg None");
+            (0, [0; 8])
+        }
+    };
+    motor1.decode_msg(msg1.0, msg1.1);
+
+    let msg2 = match motor2.recv_msg() {
+        Some((return_type, msg)) => (return_type, msg),
+        None => {
+            println!("recv_msg None");
+            (0, [0; 8])
+        }
+    };
+    motor1.decode_msg(msg2.0, msg2.1);
 }
