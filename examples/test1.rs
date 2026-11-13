@@ -41,7 +41,13 @@ fn main(){
     let msg = motor2.build_send_message(Command::build_switch_models(Openloop));
     motor2.send_messages(msg);
 
-        let msg1 = match motor1.recv_msg() {
+    let msg = motor1.build_send_message(Command::build_askstatus);
+    motor1.send_messages(msg);
+
+    let msg = motor2.build_send_message(Command::build_askstatus);
+    motor2.send_messages(msg);
+
+    let msg1 = match motor1.recv_msg() {
         Some((return_type, msg)) => (return_type, msg),
         None => {
             println!("recv_msg None");
@@ -72,7 +78,9 @@ fn main(){
     let msg = motor2.build_send_message(Command::build_openloop_voltage(0.6));
     motor2.send_messages(msg);
 
+
     thread::sleep(Duration::from_micros(500));
+
 
     let msg = motor1.build_send_message(Command::build_openloop_voltage(0.0));
     motor1.send_messages(msg);
@@ -81,14 +89,15 @@ fn main(){
     motor2.send_messages(msg);
 
 
-        let msg = motor2.build_send_message(Command::build_switch_models(Openloop));
-    motor2.send_messages(msg);
-
     let msg = motor1.build_send_message(Command::build_askstatus);
     motor1.send_messages(msg);
 
     let msg = motor2.build_send_message(Command::build_askstatus);
     motor2.send_messages(msg);
+
+    
+    thread::sleep(Duration::from_secs(1));
+
 
     let msg1 = match motor1.recv_msg() {
         Some((return_type, msg)) => (return_type, msg),
