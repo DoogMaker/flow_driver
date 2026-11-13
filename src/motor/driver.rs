@@ -42,23 +42,23 @@ impl Motor {
             )
     }
 
-    pub fn decode_msg(&self, return_type: u32, msg: [u8; 8]) -> Option<ReturnMessage> {
-        if let Some((_, return_decode)) = command::decode_recv_message(return_type, msg) {
-            Some(return_decode)
-        } else {
-            println!("decode Err");
-            None
-        }
-    }
-
-    pub fn print_msg(msg: Option<ReturnMessage>) {
+    pub fn print_msg(msg: ReturnMessage) {
 
         match msg {
-            Some(ReturnMessage::FaultDetails(frame)) => println!("fault: {frame:?}"),
-            Some(ReturnMessage::StatusFeedback(frame)) => println!("status: {frame:?}"),
-            Some(ReturnMessage::ParameterResponse(frame)) => println!("parameter: {frame:?}"),
-            None => println!("decode Err"),
+            ReturnMessage::FaultDetails(frame) => println!("fault: {frame:?}"),
+            ReturnMessage::StatusFeedback(frame) => println!("status: {frame:?}"),
+            ReturnMessage::ParameterResponse(frame) => println!("parameter: {frame:?}"),
         }
         
     }
+
+    pub fn decode_msg(&self, return_type: u32, msg: [u8; 8]) {
+        if let Some((_, return_decode)) = command::decode_recv_message(return_type, msg) {
+            Self::print_msg(return_decode);
+        } else {
+            println!("decode Err");
+        }
+    }
+
+
 }
