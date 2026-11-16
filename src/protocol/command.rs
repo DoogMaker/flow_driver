@@ -3,59 +3,72 @@ use super::decode::*;
 use super::encode::*;
 
 
-pub const StatusFeedbackFrameLow: u16 = AllFrameBasic::StatusFeedbackFrame as u16;
-pub const StatusFeedbackFrameHeigh: u16 = StatusFeedbackFrameLow + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) const STATUS_FEEDBACK_FRAME_LOW: u16 = AllFrameBasic::StatusFeedbackFrame as u16;
+pub(crate) const STATUS_FEEDBACK_FRAME_HEIGH: u16 = STATUS_FEEDBACK_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
-pub const FaultDetailsFrameLow: u16 = AllFrameBasic::FaultDetailsFrame as u16;
-pub const FaultDetailsFrameHeigh: u16 = FaultDetailsFrameLow + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) const FAULT_DETAILS_FRAME_LOW: u16 = AllFrameBasic::FaultDetailsFrame as u16;
+pub(crate) const FAULT_DETAILS_FRAME_HEIGH: u16 = FAULT_DETAILS_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
-pub const ParameterResponseFrameLow: u16 = AllFrameBasic::ParameterResponseFrame as u16;
-pub const ParameterResponseFrameHeigh: u16 = ParameterResponseFrameLow + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) const PARAMETER_RESPONSE_FRAME_LOW: u16 = AllFrameBasic::ParameterResponseFrame as u16;
+pub(crate) const PARAMETER_RESPONSE_FRAME_HEIGH: u16 = PARAMETER_RESPONSE_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) type Models = SwitchModelsByte1;
+pub(crate) type Direction = SetDirectionByte1;
+pub(crate) type Opcode = GeneralParametersByte1;
+pub(crate) type Id = Option<GeneralParametersByte23>;
 
-pub type Models = SwitchModelsByte1;
-pub type Direction = SetDirectionByte1;
-pub type Opcode = GeneralParametersByte1;
-pub type Id = Option<GeneralParametersByte23>;
-
+/// Command
+/// including motor all commands
 pub enum Command
 {
-    build_speed(f32),
-    build_openloop_voltage(f32),
-    build_switch_models(Models),
-    build_set_direction(Direction),
-    build_torque(f32),
-    build_state(f32),
-    build_keepalive,
-    build_askstatus,
-    build_set_nodenum(u8),
-    build_general_parameters(Opcode,
+    /// set speed
+    BuildSpeed(f32),
+    /// set openloop voltage
+    BuildOpenloopVoltage(f32),
+    /// set switch models
+    BuildSwitchModels(Models),
+    /// set direction
+    BuildSetDirection(Direction),
+    /// set torque
+    BuildTorque(f32),
+    /// set state
+    BuildState(f32),
+    /// keepalive
+    BuildKeepalive,
+    /// ask status
+    BuildAskstatus,
+    /// set nodenum
+    BuildSetNodenum(u8),
+    /// build general parameters
+    BuildGeneralParameters(
+        Opcode,
         Id,
         Option<f32>),
 }
+
 pub fn build_send_message(node_id: u32, command: Command) -> (u32, [u8; 8])
 {
     let frame_id: u32 = command_frame_id(node_id);
     let data: [u8; 8] = match command
     {
-        Command::build_speed(val) =>
+        Command::BuildSpeed(val) =>
             build_speed(val),
-        Command::build_openloop_voltage(val) =>
+        Command::BuildOpenloopVoltage(val) =>
             build_openloop_voltage(val),
-        Command::build_switch_models(model) =>
+        Command::BuildSwitchModels(model) =>
             build_switch_models(model),
-        Command::build_set_direction(direction) =>
+        Command::BuildSetDirection(direction) =>
             build_set_direction(direction),
-        Command::build_torque(val) =>
+        Command::BuildTorque(val) =>
             build_torque(val),
-        Command::build_state(val) =>
+        Command::BuildState(val) =>
             build_state(val),
-        Command::build_keepalive =>
+        Command::BuildKeepalive =>
             build_keepalive(),
-        Command::build_askstatus =>
+        Command::BuildAskstatus =>
             build_askstatus(),
-        Command::build_set_nodenum(val) =>
+        Command::BuildSetNodenum(val) =>
             build_set_nodenum(val),
-        Command::build_general_parameters(opcode, id, val) =>
+        Command::BuildGeneralParameters(opcode, id, val) =>
             build_general_parameters(opcode, id, val),
     };
     (frame_id, data)
@@ -65,14 +78,14 @@ pub fn filter_frame_id(frame: u16) -> (u16, u16)
 {
     let (result, node_id) = match frame
     {
-        StatusFeedbackFrameLow..StatusFeedbackFrameHeigh =>
-            (StatusFeedbackFrameLow, frame - StatusFeedbackFrameLow),
+        STATUS_FEEDBACK_FRAME_LOW..STATUS_FEEDBACK_FRAME_HEIGH =>
+            (STATUS_FEEDBACK_FRAME_LOW, frame - STATUS_FEEDBACK_FRAME_LOW),
 
-        FaultDetailsFrameLow..FaultDetailsFrameHeigh =>
-            (FaultDetailsFrameLow, frame - FaultDetailsFrameLow),
+        FAULT_DETAILS_FRAME_LOW..FAULT_DETAILS_FRAME_HEIGH =>
+            (FAULT_DETAILS_FRAME_LOW, frame - FAULT_DETAILS_FRAME_LOW),
 
-        ParameterResponseFrameLow..ParameterResponseFrameHeigh =>
-            (ParameterResponseFrameLow, frame - ParameterResponseFrameLow),
+        PARAMETER_RESPONSE_FRAME_LOW..PARAMETER_RESPONSE_FRAME_HEIGH =>
+            (PARAMETER_RESPONSE_FRAME_LOW, frame - PARAMETER_RESPONSE_FRAME_LOW),
         
         _ => (0, 0),
     };
@@ -97,10 +110,14 @@ fn match_parameter_response_frame(data: [u8; 8]) -> Option<ParameterResponseFram
     result
 }
 
+/// ReturnMessage
 #[derive(Debug)]
 pub enum ReturnMessage {
+    /// StatusFeedbackFrame
     StatusFeedback(StatusFeedbackFrame),
+    /// FaultDetailsFrame
     FaultDetails(FaultDetailsFrame),
+    /// ParameterResponseFrame
     ParameterResponse(ParameterResponseFrame),
 }
 
@@ -109,22 +126,22 @@ pub fn decode_recv_message(return_type: u32, data: [u8; 8]) -> Option<(u32, Retu
     // let (frame_type, node_id) = filter_frame_id(frame);
     let message = match return_type as u16
     {
-        FaultDetailsFrameLow =>
+        FAULT_DETAILS_FRAME_LOW =>
             {match_fault_details_frame(data).map(ReturnMessage::FaultDetails)},
-        StatusFeedbackFrameLow =>
+        STATUS_FEEDBACK_FRAME_LOW =>
             {match_status_feedback_frame(data).map(ReturnMessage::StatusFeedback)},
-        ParameterResponseFrameLow =>
+        PARAMETER_RESPONSE_FRAME_LOW =>
             {match_parameter_response_frame(data).map(ReturnMessage::ParameterResponse)},
         _ => None,
     };
     message.map(|message| (return_type, message))
 }
 
-pub fn test_unknow_decode(data: [u8; 8]) -> Option<[u8; 8]>
-{
-    let result = unknow_decode(&data);
-    result
-}
+// pub fn test_unknow_decode(data: [u8; 8]) -> Option<[u8; 8]>
+// {
+//     let result = unknow_decode(&data);
+//     result
+// }
 
 #[cfg(test)]
 mod tests {
@@ -132,78 +149,78 @@ mod tests {
 
     #[test]
     fn test_command_code() {
-        let result = build_send_message(1, Command::build_speed(10.0));
+        let result = build_send_message(1, Command::BuildSpeed(10.0));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x01, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(2, Command::build_openloop_voltage(0.6));
+        let result = build_send_message(2, Command::BuildOpenloopVoltage(0.6));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x02, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(3, Command::build_switch_models(Models::Openloop));
+        let result = build_send_message(3, Command::BuildSwitchModels(Models::Openloop));
         assert!(result.0 == 0x103);
         assert!(result.1 == [0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(4, Command::build_switch_models(Models::IDLE));
+        let result = build_send_message(4, Command::BuildSwitchModels(Models::IDLE));
         assert!(result.0 == 0x104);
         assert!(result.1 == [0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(5, Command::build_set_direction(Direction::BackwardRotation));
+        let result = build_send_message(5, Command::BuildSetDirection(Direction::BackwardRotation));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(6, Command::build_torque(1.0));
+        let result = build_send_message(6, Command::BuildTorque(1.0));
         assert!(result.0 == 0x106);
         assert!(result.1 == [0x05, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(7, Command::build_state(1.0));
+        let result = build_send_message(7, Command::BuildState(1.0));
         assert!(result.0 == 0x107);
         assert!(result.1 == [0x06, 0x10, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(8, Command::build_keepalive);
+        let result = build_send_message(8, Command::BuildKeepalive);
         assert!(result.0 == 0x108);
         assert!(result.1 == [0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(9, Command::build_askstatus);
+        let result = build_send_message(9, Command::BuildAskstatus);
         assert!(result.0 == 0x109);
         assert!(result.1 == [0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(10, Command::build_set_nodenum(3));
+        let result = build_send_message(10, Command::BuildSetNodenum(3));
         assert!(result.0 == 0x10A);
         assert!(result.1 == [0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(11, Command::build_general_parameters(Opcode::ReadEffectiveval, Some(GeneralParametersByte23::SpeedLoopKp), None));
+        let result = build_send_message(11, Command::BuildGeneralParameters(Opcode::ReadEffectiveval, Some(GeneralParametersByte23::SpeedLoopKp), None));
         assert!(result.0 == 0x10B);
         assert!(result.1 == [0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(12, Command::build_general_parameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::SpeedLoopKp), Some(0.1)));
+        let result = build_send_message(12, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::SpeedLoopKp), Some(0.1)));
         assert!(result.0 == 0x10C);
         assert!(result.1 == [0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_send_message(1, Command::build_general_parameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::PoseloopKp), Some(0.5)));
+        let result = build_send_message(1, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::PoseloopKp), Some(0.5)));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_send_message(2, Command::build_general_parameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::FeedforwardVelGain), Some(1.0)));
+        let result = build_send_message(2, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::FeedforwardVelGain), Some(1.0)));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
-        let result = build_send_message(3, Command::build_general_parameters(Opcode::SubmitEffectiveval, None, None));
+        let result = build_send_message(3, Command::BuildGeneralParameters(Opcode::SubmitEffectiveval, None, None));
         assert!(result.0 == 0x103);
         assert!(result.1 == [0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(4, Command::build_general_parameters(Opcode::SaveEffectiveval, None, None));
+        let result = build_send_message(4, Command::BuildGeneralParameters(Opcode::SaveEffectiveval, None, None));
         assert!(result.0 == 0x104);
         assert!(result.1 == [0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(5, Command::build_general_parameters(Opcode::ResetDefault, None, None));
+        let result = build_send_message(5, Command::BuildGeneralParameters(Opcode::ResetDefault, None, None));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     }
 
     #[test]
     fn test_decode_message() {
-        let frame = ParameterResponseFrameLow + 3;
+        let frame = PARAMETER_RESPONSE_FRAME_LOW + 3;
         let response_data = [
             [0x80, 0x00, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D],
             [0x82, 0x05, 0x00, 0x01, 0x00, 0x00, 0xFA, 0x45],

@@ -11,7 +11,6 @@ pub use motor::driver::Motor;
 // 门面：命令、返回值、帧类型基址
 pub use protocol::command::{
     Command, ReturnMessage,
-    StatusFeedbackFrameLow, FaultDetailsFrameLow, ParameterResponseFrameLow,
 
 };
 

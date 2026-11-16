@@ -12,16 +12,24 @@ use crate::protocol::command::{build_send_message, Command, filter_frame_id};
 
 use super::constants::{ALIVE_TIMEOUT, SEND_TIMEOUT, INIT_ITER, RECV_TIMEOUT};
 
-
+/// can bus class
 pub struct CanBus {
+    /// send tx: main thread to send thread
     pub send_tx: SyncSender<(u32, [u8; 8])>,
-    pub classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
-    pub stop_flags: Arc<AtomicBool>,
+    /// classed_msgs: recv thread to main thread
+    pub(crate) classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
+    
+    stop_flags: Arc<AtomicBool>,
     send_handle: Mutex<Option<JoinHandle<()>>>,
     recv_handle: Mutex<Option<JoinHandle<()>>>,
 }
 
 impl CanBus {
+    /// canbus_init
+    /// input motor_start: motor start id, motor_stop: motor stop id, can_num: can bus number
+    /// example:
+    ///     mycanbus = canbus_init(1,1,"can1".to_string());
+    ///     mycanbus = canbus_init(1,6,"can1".to_string());
     pub fn canbus_init(motor_start: u32, motor_stop: u32, can_num: String) -> Self {
         // create a channel for sending CAN frames
         let mut send_socket = can_init(&can_num)
@@ -68,6 +76,9 @@ impl CanBus {
         }
     }
 
+    /// can bus close
+    /// if success
+    /// println!("All thread has closed")
     pub fn canbus_close(&self) {
         self.stop_flags.store(true, Ordering::SeqCst);
 
@@ -108,13 +119,19 @@ fn send_can_frame(frame: &CanFrame, socket: &mut CanSocket) -> std::result::Resu
 }
 
 fn send_can_keepalive_frame(node_id: u32, socket: &mut CanSocket) {
-    let (id, msg) = build_send_message(node_id, Command::build_keepalive);
+    let (id, msg) = build_send_message(node_id, Command::BuildKeepalive);
     let can_frame = make_can_frame(id, &msg);
-    socket.transmit(&can_frame);
+    if let Err(e) = socket.transmit(&can_frame) {
+        eprint!("keepalive send error: {e}")
+    }
 }
 //=====================================
 
-pub struct MotorMsg {
+/// MotorMsg: motor msg class
+/// id: motor id
+/// return_type: return type
+/// data_queue: data queue
+pub(crate) struct MotorMsg {
     pub id: u32,
     pub return_type: VecDeque<u32>,
     pub data_queue: VecDeque<[u8; 8]>,
@@ -196,7 +213,6 @@ fn send_thread(
             }
         }
     }
-    drop(socket1);
 }
 
 //======================================
@@ -230,7 +246,7 @@ fn recv_thread(
 
             let mut classed_msgs = classed_msgs.lock().unwrap();
 
-            let classed_msg = classed_msgs
+            let _ = classed_msgs
                 .iter_mut()
                 .find(|x| x.id == id) 
                 .map(|x| {
@@ -240,5 +256,4 @@ fn recv_thread(
                 .ok_or("unknown id");
         }
     }
-    drop(socket1);
 }

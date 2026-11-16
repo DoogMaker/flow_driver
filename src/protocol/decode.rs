@@ -1,11 +1,10 @@
 use super::constants::*;
-// use repr_cast::repr_cast;
-// use bitflags::bitflags;
 
-
+/// state feedback frame
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct StatusFeedbackFrame
-{
+{   
     system_state: StatusFeedbackByte0,
     rotation_speed: f32,
     current_a: f32,
@@ -14,17 +13,17 @@ pub struct StatusFeedbackFrame
 
 }
 
-pub fn unknow_decode(data: &[u8]) -> Option<[u8; 8]>
-{
-    if data.len() < 8 {
-        println!("data length must be 8");
-        return None;
-    }
+// pub fn unknow_decode(data: &[u8]) -> Option<[u8; 8]>
+// {
+//     if data.len() < 8 {
+//         println!("data length must be 8");
+//         return None;
+//     }
 
-    let mut raw_bytes = [0u8; 8];
-    raw_bytes.copy_from_slice(&data[0..8]);
-    Some(raw_bytes)
-}
+//     let mut raw_bytes = [0u8; 8];
+//     raw_bytes.copy_from_slice(&data[0..8]);
+//     Some(raw_bytes)
+// }
 
 pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 {
@@ -59,12 +58,17 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
     })
 }
 
+/// fault details frame
 #[derive(Debug)]
 pub struct FaultDetailsFrame
-{
+{   
+    /// falt code
     pub fault_code: FaultDetailsByte0,
+    /// fault details
     pub fault_mask_code: FaultDetailsByte23,
+    /// drv8353 status1
     pub drv8353_status1: Option<FaultDetailsByte45>,
+    /// drv8353 status2
     pub drv8353_status2: Option<FaultDetailsByte67>,
 }
 
@@ -102,16 +106,19 @@ pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
 
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 enum ParameterResponseFrameVal
 {
     ParameterResponseByte47(ParameterResponseByte47),
     GroupedBitmap2(GroupedBitmap2),
     RawBytes([u8; 4]),
-    val(f32),
+    Val(f32),
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
+/// parameter response frame
 pub struct ParameterResponseFrame
 {
     opcode_echo:ParameterResponseByte0,
@@ -151,7 +158,7 @@ pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
             match err_code
             {
                 ParameterResponseByte1::SUCCESS =>
-                    ParameterResponseFrameVal::val(
+                    ParameterResponseFrameVal::Val(
                         f32::from_le_bytes(
                             [data[4], data[5], data[6], data[7]]
                         )
@@ -460,8 +467,8 @@ mod tests {
         assert_eq!(err, 1);
         assert_eq!(id, 0x0100);
 
-        let f = unknow_decode(&[0x0A,0x06,0x00,0x00,0x00,0x00,0x00,0x00]).unwrap();
-        assert!(f == [0x0A,0x06,0x00,0x00,0x00,0x00,0x00,0x00]);
+        // let f = unknow_decode(&[0x0A,0x06,0x00,0x00,0x00,0x00,0x00,0x00]).unwrap();
+        // assert!(f == [0x0A,0x06,0x00,0x00,0x00,0x00,0x00,0x00]);
 
 
     }

@@ -1,7 +1,7 @@
 use flow_driver;
 use std::{thread, time::Duration};
 use flow_driver::Command;
-use flow_driver::{ParamId, ParamOpcode, MotorMode};
+use flow_driver::{ParamOpcode};
 use std::sync::{Arc};
 
 fn main(){
@@ -9,14 +9,11 @@ fn main(){
 
     let motor1 = flow_driver::Motor::new(1, canbus1.clone());
 
-    let msg = motor1.build_send_message(Command::build_set_nodenum(2u8));
-    motor1.send_messages(msg);
+    motor1.build_and_send_message(Command::BuildSetNodenum(2u8));
 
-    let msg = motor1.build_send_message(Command::build_general_parameters(ParamOpcode::SubmitEffectiveval, None, None ));
-    motor1.send_messages(msg);
+    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
 
-    let msg = motor1.build_send_message(Command::build_general_parameters(ParamOpcode::SaveEffectiveval, None, None ));
-    motor1.send_messages(msg);
+    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None ));
 
     thread::sleep(Duration::from_secs(1));
 

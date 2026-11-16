@@ -30,35 +30,53 @@ pub enum EncodeCommand {
     GeneralParameters = 0x0A,
 }
 
+/// All models in thie enum
 #[repr_cast(u8)]
 #[derive(Debug)]
 pub enum SwitchModelsByte1 {
+    /// default model
     IDLE = 0x00,
+    /// openloop model
     Openloop = 0x01,
+    /// align model
     Align = 0x02,
+    /// torque model
     Torque = 0x03,
+    /// speed model
     Speed = 0x04,
+    /// postition model
     Position = 0x05,
+    /// err model
     Fault = 0x06,
 }
 
+/// Set Direction
 #[repr(u8)]
 pub enum SetDirectionByte1 {
+    ///
     ForwardRotation = 0x00,
+    ///
     BackwardRotation = 0x01,
 }
 
-
+/// General Parameters
 #[repr(u8)]
 pub enum GeneralParametersByte1 {
+    /// read effective value
     ReadEffectiveval = 0x00,
+    /// read temporary value
     ReadTemporaryval = 0x01,
+    /// write temporary value
     WriteTemporaryval = 0x02,
+    /// submit effective value
     SubmitEffectiveval = 0x03,
+    /// save effective value
     SaveEffectiveval = 0x04,
+    /// reset default value
     ResetDefault = 0x05,
 }
 
+#[allow(missing_docs)]
 #[repr_cast(u16)]
 #[derive(Debug)]
 pub enum GeneralParametersByte23 {
@@ -162,13 +180,6 @@ pub enum GeneralParametersByte23 {
 
 //=========================================================================================
 
-#[repr(u16)]
-pub enum FeedBackFrame {
-    StatusFeedback = 0x200,
-    FaultDetails = 0x300,
-    ParameterResponse = 0x400,
-}
-
 #[repr_cast(u8)]
 #[derive(Debug)]
 pub enum StatusFeedbackByte0 {
@@ -177,8 +188,8 @@ pub enum StatusFeedbackByte0 {
     Fault = 0x02,
 }
 
-pub const SPEED: f32 = 10.0;
-pub const PHASEACURRENT: f32 = 100.0;
+// pub const SPEED: f32 = 10.0;
+// pub const PHASEACURRENT: f32 = 100.0;
 pub const BUSVOLTAGE: f32 = 10.0;
 
 pub type StatusFeedbackByte5 = SwitchModelsByte1;
