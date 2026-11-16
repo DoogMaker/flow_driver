@@ -17,7 +17,7 @@ impl Motor {
     }
 
     // build send messages 
-    pub fn build_send_message(&self, cmd: command::Command) -> (u32, [u8; 8]) {
+    pub fn build_message(&self, cmd: command::Command) -> (u32, [u8; 8]) {
         let (id, data) = command::build_send_message(self.id, cmd);
         (id, data)
     }
@@ -25,6 +25,12 @@ impl Motor {
     // send messages -> tx
     pub fn send_messages(&self, data: (u32, [u8; 8])){
         let _ = self.can_bus.send_tx.send(data);
+    }
+
+    //build and send msg
+    pub fn build_and_send_message(&self, cmd: command::Command) {
+        let data = self.build_message(cmd);
+        self.send_messages(data);
     }
 
     pub fn recv_msg(&self) -> Option<(u32, [u8; 8])>{
@@ -57,6 +63,12 @@ impl Motor {
             Self::print_msg(return_decode);
         } else {
             println!("decode Err");
+        }
+    }
+
+    pub fn rdp_msg(&self) {
+        if let Some(msg) = self.recv_msg() {
+            self.decode_msg(msg.0, msg.1);
         }
     }
 

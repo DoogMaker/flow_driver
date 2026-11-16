@@ -8,147 +8,77 @@ fn main(){
 
     let motor1 = flow_driver::Motor::new(1, canbus1.clone());
     let motor2 = flow_driver::Motor::new(2, canbus1.clone());
+    // 配置总线 将电机挂在在总线上
 
-    let msg = motor1.build_send_message(Command::build_askstatus);
-    motor1.send_messages(msg);
-
-    let msg = motor2.build_send_message(Command::build_askstatus);
-    motor2.send_messages(msg);
-
-    thread::sleep(Duration::from_secs(1));
-
-    let msg1 = match motor1.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg1.0, msg1.1);
-
-    let msg2 = match motor2.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg2.0, msg2.1);
-
-    let msg = motor1.build_send_message(Command::build_switch_models(Openloop));
-    motor1.send_messages(msg);
-
-    let msg = motor2.build_send_message(Command::build_switch_models(Openloop));
-    motor2.send_messages(msg);
-
-    let msg = motor1.build_send_message(Command::build_askstatus);
-    motor1.send_messages(msg);
-
-    let msg = motor2.build_send_message(Command::build_askstatus);
-    motor2.send_messages(msg);
+    motor1.build_and_send_message(Command::build_askstatus);
+    motor2.build_and_send_message(Command::build_askstatus);
+    // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));
+    //主线程堵塞1s
 
+    motor1.rdp_msg();
+    motor2.rdp_msg();
+    // 读取消息并打印
 
-    let msg1 = match motor1.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg1.0, msg1.1);
+    motor1.build_and_send_message(Command::build_switch_models(Openloop));
+    motor2.build_and_send_message(Command::build_switch_models(Openloop));
+    // 切换为开环模式
 
-    let msg2 = match motor2.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg2.0, msg2.1);
+    motor1.build_and_send_message(Command::build_askstatus);
+    motor2.build_and_send_message(Command::build_askstatus);
+    // 询问当前模式
 
-    let msg = motor1.build_send_message(Command::build_speed(6.0));
-    motor1.send_messages(msg);
-    
-    let msg = motor2.build_send_message(Command::build_speed(6.0));
-    motor2.send_messages(msg);
+    thread::sleep(Duration::from_secs(1));
+    // 主线程阻塞1s
 
+    motor1.rdp_msg();
+    motor2.rdp_msg();
+    // 读取消息并打印
 
-    let msg = motor1.build_send_message(Command::build_openloop_voltage(1.0));
-    motor1.send_messages(msg);
-    
-    let msg = motor2.build_send_message(Command::build_openloop_voltage(1.0));
-    motor2.send_messages(msg);
+    motor1.build_and_send_message(Command::build_speed(6.0));
+    motor2.build_and_send_message(Command::build_speed(6.0));
+    // 设置速度为6 rad/s
 
+    motor1.build_and_send_message(Command::build_openloop_voltage(1.0));
+    motor2.build_and_send_message(Command::build_openloop_voltage(1.0));
+    // 设置电压1 v 
 
     thread::sleep(Duration::from_secs(2));
+    // 主线程阻塞2s
 
-    let msg = motor1.build_send_message(Command::build_speed(-6.0));
-    motor1.send_messages(msg);
-    
-    let msg = motor2.build_send_message(Command::build_speed(-6.0));
-    motor2.send_messages(msg);
+    motor1.build_and_send_message(Command::build_speed(-6.0));
+    motor2.build_and_send_message(Command::build_speed(-6.0));
+    // 设置速度为-6 rad/s
 
     thread::sleep(Duration::from_secs(2));
+    // 主线程阻塞2s
 
+    motor1.build_and_send_message(Command::build_openloop_voltage(0.0));
+    motor2.build_and_send_message(Command::build_openloop_voltage(0.0));
+    // 设置电压0 v
 
-    let msg = motor1.build_send_message(Command::build_openloop_voltage(0.0));
-    motor1.send_messages(msg);
-    
-    let msg = motor2.build_send_message(Command::build_openloop_voltage(0.0));
-    motor2.send_messages(msg);
-
-
-    let msg = motor1.build_send_message(Command::build_askstatus);
-    motor1.send_messages(msg);
-
-    let msg = motor2.build_send_message(Command::build_askstatus);
-    motor2.send_messages(msg);
-
+    motor1.build_and_send_message(Command::build_askstatus);
+    motor2.build_and_send_message(Command::build_askstatus);
+    // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));
+    // 主线程阻塞1s
 
-
-    let msg1 = match motor1.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg1.0, msg1.1);
-
-    let msg2 = match motor2.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg2.0, msg2.1);
+    motor1.rdp_msg();
+    motor2.rdp_msg();
+    // 读取消息并打印
 
 
     thread::sleep(Duration::from_secs(5));
+    // 主线程阻塞5s 在此时间中断会返回错误码
 
     canbus1.canbus_close();
-    println!("clse success!");
+    println!("close success!");
+    // 关闭线程并打印成功
 
-    let msg1 = match motor1.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg1.0, msg1.1);
+    motor1.rdp_msg();
+    motor2.rdp_msg();
+    // 读取错误码
 
-    let msg2 = match motor2.recv_msg() {
-        Some((return_type, msg)) => (return_type, msg),
-        None => {
-            println!("recv_msg None");
-            (0, [0; 8])
-        }
-    };
-    motor1.decode_msg(msg2.0, msg2.1);
 }
