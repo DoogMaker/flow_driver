@@ -2,6 +2,9 @@ use std::sync::{Arc};
 use crate::can::transport::{CanBus, MotorMsg};
 use crate::protocol::command::{self, ReturnMessage};
 use crate::protocol::constants::AllFrameBasic;
+use crate::motor_move::move_method;
+use std::time;
+use std::thread;
 
 /// Motor: motor class
 /// id: motor id
@@ -93,7 +96,7 @@ impl Motor {
 
 
     ///get now rad
-        pub fn get_rad(&self) -> Option<f32> {
+    pub fn get_rad(&self) -> Option<f32> {
         self.build_and_send_message(command::Command::BuildAskstatus);
     
         let frame_type = AllFrameBasic::StatusFeedbackFrame as u32;
@@ -124,5 +127,33 @@ impl Motor {
         None
     }
 
+   pub fn move_torad(&self, target_rad: f32) -> Result<(), &'static str> {
+    let now_rad = self
+        .get_rad()
+        .ok_or("No rad return")?;
 
+    let tf = 2.0;
+
+    let coeffs = move_method::equation_coefficients(
+        now_rad as f64,
+        target_rad as f64,
+        0.0, 0.0,
+        0.0, 0.0,
+        tf,
+    )?;
+
+    let (time, _position, velocity, _acceleration) =
+        move_method::equation_solution(coeffs, tf, 10)?;
+
+    let start_time = time::Instant::now();
+
+    for (&t, &speed) in time.iter().zip(velocity.iter()) {
+        let deadline = start_time + time::Duration::from_secs_f64(t);
+        thread::sleep(deadline.saturating_duration_since(time::Instant::now()));
+
+        self.build_and_send_message(command::Command::BuildSpeed(speed as f32));
+    }
+
+    Ok(())
+    }
 }

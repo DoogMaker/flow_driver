@@ -87,6 +87,8 @@ pub fn equation_solution(
     Ok((time, position, velocity, acceleration))
 }
 
+
+
 #[cfg(test)]
 mod tests {
     use super::{equation_coefficients, equation_solution};
