@@ -17,6 +17,10 @@ fn main(){
 
     thread::sleep(Duration::from_secs(1));
 
+    motor1.build_and_send_message(Command::BuildAskstatus);
+    thread::sleep(Duration::from_secs(1));
+    motor1.rdp_msg();
+
     canbus1.canbus_close();
     println!("close success!");
 }
