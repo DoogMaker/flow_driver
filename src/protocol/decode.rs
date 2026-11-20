@@ -4,12 +4,16 @@ use super::constants::*;
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct StatusFeedbackFrame
-{   
-    system_state: StatusFeedbackByte0,
-    rotation_speed: f32,
-    current_a: f32,
-    model: StatusFeedbackByte5,
-    bus_voltage: f32,
+{   ///
+    pub system_state: StatusFeedbackByte0,
+    ///
+    pub rotation_speed: f32,
+    ///
+    pub current_a: f32,
+    ///
+    pub model: StatusFeedbackByte5,
+    ///
+    pub rad: f32,
 
 }
 
@@ -47,14 +51,14 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
             return None;
         };
 
-    let bus_voltage = i16::from_le_bytes([data[6], data[7]]) as f32 / BUSVOLTAGE;
+    let rad = i16::from_le_bytes([data[6], data[7]]) as f32 / RAD;
 
     Some(StatusFeedbackFrame {
         system_state,
         rotation_speed,
         current_a,
         model,
-        bus_voltage,
+        rad,
     })
 }
 
@@ -207,30 +211,30 @@ mod tests {
         let f = status_feedback_frame(&[0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x00]).unwrap();
         let state = f.system_state as u8;
         let model = f.model as u8;
-        println!("idle: state={} speed={} current={} model={} bus={}", state, f.rotation_speed, f.current_a, model, f.bus_voltage);
+        println!("idle: state={} speed={} current={} model={} bus={}", state, f.rotation_speed, f.current_a, model, f.rad);
         assert_eq!(state, 0);
         assert_eq!(f.rotation_speed, 0.0);
         assert_eq!(f.current_a, 0.0);
         assert_eq!(model, 0);
-        assert_eq!(f.bus_voltage, 24.0);
+        assert_eq!(f.rad, 24.0);
 
         let f = status_feedback_frame(&[0x01, 0x7D, 0x00, 0x7D, 0x00, 0x01, 0xF0, 0x00]).unwrap();
         let state = f.system_state as u8;
         let model = f.model as u8;
-        println!("openloop: state={} speed={} current={} model={} bus={}", state, f.rotation_speed, f.current_a, model, f.bus_voltage);
+        println!("openloop: state={} speed={} current={} model={} bus={}", state, f.rotation_speed, f.current_a, model, f.rad);
         assert_eq!(state, 1);
         assert_eq!(f.rotation_speed, 12.5);
         assert_eq!(f.current_a, 1.25);
         assert_eq!(model, 1);
-        assert_eq!(f.bus_voltage, 24.0);
+        assert_eq!(f.rad, 24.0);
 
         let f = status_feedback_frame(&[0x02, 0x00, 0x00, 0x00, 0x00, 0x06, 0xF0, 0x00]).unwrap();
         let state = f.system_state as u8;
         let model = f.model as u8;
-        println!("fault: state={} speed={} current={} model={} bus={}", state, f.rotation_speed, f.current_a, model, f.bus_voltage);
+        println!("fault: state={} speed={} current={} model={} bus={}", state, f.rotation_speed, f.current_a, model, f.rad);
         assert_eq!(state, 2);
         assert_eq!(model, 6);
-        assert_eq!(f.bus_voltage, 24.0);
+        assert_eq!(f.rad, 24.0);
 
         let f = status_feedback_frame(&[0x01, 0xE0, 0xFF, 0xCE, 0xFF, 0x01, 0xF0, 0x00]).unwrap();
         println!("negative: speed={} current={}", f.rotation_speed, f.current_a);

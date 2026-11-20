@@ -190,7 +190,7 @@ pub enum StatusFeedbackByte0 {
 
 // pub const SPEED: f32 = 10.0;
 // pub const PHASEACURRENT: f32 = 100.0;
-pub const BUSVOLTAGE: f32 = 10.0;
+pub const RAD: f32 = 10000.0;
 
 pub type StatusFeedbackByte5 = SwitchModelsByte1;
 

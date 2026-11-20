@@ -1,6 +1,7 @@
 use std::sync::{Arc};
 use crate::can::transport::{CanBus, MotorMsg};
 use crate::protocol::command::{self, ReturnMessage};
+use crate::protocol::constants::AllFrameBasic;
 
 /// Motor: motor class
 /// id: motor id
@@ -43,9 +44,16 @@ impl Motor {
         self.send_messages(data);
     }
 
+    /// receive and decode and print msg
+    pub fn rdp_msg(&self) {
+        if let Some(msg) = self.recv_msg() {
+            self.decode_msg(msg.0, msg.1);
+        }
+    }
+
     /// recv_msg to cache
     /// return: (return_type, msg)
-    pub fn recv_msg(&self) -> Option<(u32, [u8; 8])>{
+    fn recv_msg(&self) -> Option<(u32, [u8; 8])>{
         let mut msg = self.can_bus.classed_msgs.lock().unwrap();
 
         msg
@@ -62,7 +70,7 @@ impl Motor {
 
     /// print msg on bash
     /// input msg: ReturnMessage
-    pub fn print_msg(msg: ReturnMessage) {
+    fn print_msg(msg: ReturnMessage) {
 
         match msg {
             ReturnMessage::FaultDetails(frame) => println!("fault: {frame:?}"),
@@ -74,7 +82,7 @@ impl Motor {
 
     /// decode msg
     /// input return_type, msg
-    pub fn decode_msg(&self, return_type: u32, msg: [u8; 8]) {
+    fn decode_msg(&self, return_type: u32, msg: [u8; 8]) {
         if let Some((_, return_decode)) = command::decode_recv_message(return_type, msg) {
             Self::print_msg(return_decode);
         } else {
@@ -82,11 +90,38 @@ impl Motor {
         }
     }
 
-    /// receive and decode and print msg
-    pub fn rdp_msg(&self) {
-        if let Some(msg) = self.recv_msg() {
-            self.decode_msg(msg.0, msg.1);
+
+
+    ///get now rad
+        pub fn get_rad(&self) -> Option<f32> {
+        self.build_and_send_message(command::Command::BuildAskstatus);
+    
+        let frame_type = AllFrameBasic::StatusFeedbackFrame as u32;
+    
+        let response = {
+            let mut msg = self.can_bus.classed_msgs.lock().unwrap();
+    
+            msg.iter_mut()
+                .find(|x| {
+                    x.id == self.id
+                        && x.return_type.front() == Some(&frame_type)
+                })
+                .and_then(|x: &mut MotorMsg| {
+                    let return_type = x.return_type.pop_front()?;
+                    let data = x.data_queue.pop_front()?;
+                    Some((return_type, data))
+                })
+        };
+    
+        if let Some((return_type, data)) = response {
+            if let Some((_, ReturnMessage::StatusFeedback(frame))) =
+                command::decode_recv_message(return_type, data)
+            {
+                return Some(frame.rad);
+            }
         }
+    
+        None
     }
 
 

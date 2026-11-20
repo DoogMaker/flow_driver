@@ -53,7 +53,6 @@ fn main(){
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
-
     motor1.build_and_send_message(Command::BuildOpenloopVoltage(0.0));
     motor2.build_and_send_message(Command::BuildOpenloopVoltage(0.0));
     // 设置电压0 v
