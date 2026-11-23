@@ -9,9 +9,11 @@ fn main() {
 
     motor1.build_and_send_message(Command::BuildSwitchModels(MotorMode::Position));
     motor1.build_and_send_message(Command::BuildAskstatus);
-    motor1.build_and_send_message(Command::BuildState(0.5));
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
+    motor1.build_and_send_message(Command::BuildSpeed(3.0));
+    motor1.build_and_send_message(Command::BuildState(0.5));
+    thread::sleep(Duration::from_secs(1));
     motor1.build_and_send_message(Command::BuildState(0.0));
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
@@ -19,9 +21,11 @@ fn main() {
 
     motor1.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
     motor1.build_and_send_message(Command::BuildAskstatus);
-    motor1.build_and_send_message(Command::BuildSpeed(6.0));
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
+    motor1.build_and_send_message(Command::BuildTorque(0.02));
+    motor1.build_and_send_message(Command::BuildSpeed(6.0));
+    thread::sleep(Duration::from_secs(1));
     motor1.build_and_send_message(Command::BuildSpeed(-6.0));
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
