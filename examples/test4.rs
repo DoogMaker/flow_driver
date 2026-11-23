@@ -23,6 +23,7 @@ fn main(){
     if let Err(error) = motor1.move_torad(pi/4f32) {
         eprintln!("One{error}");
     };
+    thread::sleep(Duration::from_secs(4));
     if let Err(error) = motor1.move_torad(-pi/4f32) {
         eprintln!("Two{error}");
     };
