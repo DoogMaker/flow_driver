@@ -1,4 +1,4 @@
-use std::sync::{Arc};
+use std::{sync::Arc, thread, time::Duration};
 // use std::{thread, time::Duration};
 
 use flow_driver::{CanBus, MotorMode, Command, Motor};
@@ -14,6 +14,8 @@ fn main() {
     motor1.build_and_send_message(Command::BuildState(3.0));
 
     motor1.build_and_send_message(Command::BuildSwitchModels(MotorMode::Openloop));
+
+    thread::sleep(Duration::from_secs(1));
 
     motor1.rdp_msg();
 
