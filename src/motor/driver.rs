@@ -99,7 +99,7 @@ impl Motor {
     pub fn get_rad(&self) -> Option<f32> {
         self.build_and_send_message(command::Command::BuildAskstatus);
 
-        thread::sleep(Duration::from_secs_f32(0.05));
+        thread::sleep(Duration::from_secs_f32(0.1));
     
         let frame_type = AllFrameBasic::StatusFeedbackFrame as u32;
     
