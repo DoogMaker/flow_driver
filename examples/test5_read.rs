@@ -5,7 +5,7 @@ use flow_driver::{CanBus, MotorMode, Command, Motor, ParamOpcode, ParameterRespo
 
 fn main() {
     let canbus1 = Arc::new(CanBus::canbus_init(1, 1, "can1".to_string()));
-    let motor1 = Motor::new(1, canbus1.clone());
+    let motor1 = Motor::new(2, canbus1.clone());
 
     //   EncoderOffset = 0x0308,
     //   EncoderDirection = 0x0309,
