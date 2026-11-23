@@ -4,7 +4,7 @@ use std::{sync::Arc, thread, time::Duration};
 use flow_driver::{CanBus, MotorMode, Command, Motor, ParamOpcode, ParameterResponseFrame, ParamId};
 
 fn main() {
-    let canbus1 = Arc::new(CanBus::canbus_init(1, 1, "can1".to_string()));
+    let canbus1 = Arc::new(CanBus::canbus_init(2, 2, "can1".to_string()));
     let motor1 = Motor::new(2, canbus1.clone());
 
     //   EncoderOffset = 0x0308,
