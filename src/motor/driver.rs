@@ -141,7 +141,7 @@ impl Motor {
         now_rad as f64,
         target_rad as f64,
         1.0, 1.0,
-        0.0, 0.0,
+        0.2, 0.2,
         tf,
     )?;
 
