@@ -17,6 +17,7 @@ fn main() {
         motor1.build_and_send_message(Command::BuildState(rad));
         thread::sleep(Duration::from_secs_f32(0.5));
         motor1.build_and_send_message(Command::BuildState(0.0));
+        thread::sleep(Duration::from_secs_f32(0.5));
         println!("this is {i} times running")
     }
 
