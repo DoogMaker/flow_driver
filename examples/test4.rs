@@ -1,4 +1,4 @@
-use flow_driver::{self, MotorMode::{Position}};
+use flow_driver::{self, MotorMode::{Position, Speed}};
 use std::{thread, time::Duration};
 use flow_driver::Command;
 use std::sync::{Arc};
@@ -10,7 +10,7 @@ fn main(){
     // 配置总线 将电机挂在在总线上
     let pi = std::f32::consts::PI; // f32
 
-    motor1.build_and_send_message(Command::BuildSwitchModels(Position));
+    motor1.build_and_send_message(Command::BuildSwitchModels(Speed));
 
     motor1.build_and_send_message(Command::BuildAskstatus);
 

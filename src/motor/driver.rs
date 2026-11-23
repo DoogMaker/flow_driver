@@ -3,7 +3,7 @@ use crate::can::transport::{CanBus, MotorMsg};
 use crate::protocol::command::{self, ReturnMessage};
 use crate::protocol::constants::AllFrameBasic;
 use crate::motor_move::move_method;
-use std::time;
+use std::time::{self, Duration};
 use std::thread;
 
 /// Motor: motor class
@@ -98,6 +98,8 @@ impl Motor {
     ///get now rad
     pub fn get_rad(&self) -> Option<f32> {
         self.build_and_send_message(command::Command::BuildAskstatus);
+
+        thread::sleep(Duration::from_secs_f32(0.05));
     
         let frame_type = AllFrameBasic::StatusFeedbackFrame as u32;
     
@@ -127,6 +129,7 @@ impl Motor {
         None
     }
 
+    ///
    pub fn move_torad(&self, target_rad: f32) -> Result<(), &'static str> {
     let now_rad = self
         .get_rad()
