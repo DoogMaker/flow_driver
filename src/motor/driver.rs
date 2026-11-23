@@ -147,7 +147,9 @@ impl Motor {
 
     let (time, position, _velocity, _acceleration) =
         move_method::equation_solution(coeffs, tf, 50)?;
-        println!("{:?}", _acceleration);
+        println!("{:?}", &_acceleration);
+        println!("{:?}", &_velocity);
+        println!("{:?}", &position);
 
     let start_time = time::Instant::now();
 
