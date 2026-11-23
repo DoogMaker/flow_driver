@@ -21,7 +21,7 @@ fn main(){
     // 读取消息并打印
 
     if let Err(error) = motor1.move_torad(pi/4f32) {
-        eprintln!("One：{error}");
+        eprintln!("One{error}");
     };
     if let Err(error) = motor1.move_torad(-pi/4f32) {
         eprintln!("Two{error}");

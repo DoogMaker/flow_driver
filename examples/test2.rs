@@ -12,10 +12,11 @@ fn main() {
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
 
-    for i in 1..=5 {
-        let rad: f32 = 0.05 * i as f32;
+    for i in 0..=5 {
+        let rad: f32 = 0.1 + 0.5 * i as f32;
         motor1.build_and_send_message(Command::BuildState(rad));
         thread::sleep(Duration::from_secs_f32(0.5));
+        motor1.build_and_send_message(Command::BuildState(0.0));
         println!("this is {i} times running")
     }
 
