@@ -10,9 +10,9 @@ fn main(){
     // 配置总线 将电机挂在在总线上
     let pi = std::f32::consts::PI; // f32
 
-    motor1.build_and_send_message(Command::BuildSwitchModels(Speed));
+    motor1.build_and_send_message(Command::BuildSwitchModels(Position));
 
-    motor1.build_and_send_message(Command::BuildTorque(0.5));
+    // motor1.build_and_send_message(Command::BuildTorque(0.5));
 
     motor1.build_and_send_message(Command::BuildAskstatus);
 
