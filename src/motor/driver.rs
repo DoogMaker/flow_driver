@@ -140,20 +140,20 @@ impl Motor {
     let coeffs = move_method::equation_coefficients(
         now_rad as f64,
         target_rad as f64,
-        0.0, 0.0,
+        1.0, 1.0,
         0.0, 0.0,
         tf,
     )?;
 
-    let (time, _position, velocity, _acceleration) =
+    let (time, position, _velocity, _acceleration) =
         move_method::equation_solution(coeffs, tf, 50)?;
 
     let start_time = time::Instant::now();
 
-    for (&t, &speed) in time.iter().zip(_position.iter()) {
+    for (&t, &rad) in time.iter().zip(position.iter()) {
         let deadline = start_time + time::Duration::from_secs_f64(t);
         thread::sleep(deadline.saturating_duration_since(time::Instant::now()));
-        self.build_and_send_message(command::Command::BuildState(speed as f32));
+        self.build_and_send_message(command::Command::BuildState(rad as f32));
     }
 
     Ok(())
