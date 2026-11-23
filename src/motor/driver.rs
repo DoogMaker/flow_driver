@@ -153,7 +153,6 @@ impl Motor {
     for (&t, &speed) in time.iter().zip(velocity.iter()) {
         let deadline = start_time + time::Duration::from_secs_f64(t);
         thread::sleep(deadline.saturating_duration_since(time::Instant::now()));
-
         self.build_and_send_message(command::Command::BuildSpeed(speed as f32));
     }
 

@@ -12,7 +12,7 @@ fn main(){
 
     motor1.build_and_send_message(Command::BuildSwitchModels(Speed));
 
-    motor1.build_and_send_message(Command::BuildTorque(0.02));
+    motor1.build_and_send_message(Command::BuildTorque(0.5));
 
     motor1.build_and_send_message(Command::BuildAskstatus);
 
@@ -22,11 +22,11 @@ fn main(){
     motor1.rdp_msg();
     // 读取消息并打印
 
-    if let Err(error) = motor1.move_torad(pi/2f32) {
+    if let Err(error) = motor1.move_torad(pi/4f32) {
         eprintln!("One{error}");
     };
     thread::sleep(Duration::from_secs(2));
-    if let Err(error) = motor1.move_torad(-pi/2f32) {
+    if let Err(error) = motor1.move_torad(0.0) {
         eprintln!("Two{error}");
     };
 
