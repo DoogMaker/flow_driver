@@ -12,7 +12,7 @@ fn main() {
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
 
-    for i in 0..=5 {
+    for i in 0..=4 {
         let rad: f32 = 0.1 + 0.5 * i as f32;
         motor1.build_and_send_message(Command::BuildState(rad));
         thread::sleep(Duration::from_secs_f32(0.5));
