@@ -22,15 +22,15 @@ fn main(){
     motor1.rdp_msg();
     // 读取消息并打印
 
-    if let Err(error) = motor1.move_torad(pi/4f32) {
+    if let Err(error) = motor1.move_torad(pi/2f32) {
         eprintln!("One{error}");
     };
-    thread::sleep(Duration::from_secs(4));
-    if let Err(error) = motor1.move_torad(-pi/4f32) {
+    thread::sleep(Duration::from_secs(2));
+    if let Err(error) = motor1.move_torad(-pi/2f32) {
         eprintln!("Two{error}");
     };
 
-    thread::sleep(Duration::from_secs(5));
+    thread::sleep(Duration::from_secs(2));
     // 主线程阻塞5s 在此时间中断会返回错误码
 
     canbus1.canbus_close();
