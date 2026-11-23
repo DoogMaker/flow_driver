@@ -146,7 +146,7 @@ impl Motor {
     )?;
 
     let (time, _position, velocity, _acceleration) =
-        move_method::equation_solution(coeffs, tf, 10)?;
+        move_method::equation_solution(coeffs, tf, 50)?;
 
     let start_time = time::Instant::now();
 
