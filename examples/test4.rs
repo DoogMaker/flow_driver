@@ -12,6 +12,8 @@ fn main(){
 
     motor1.build_and_send_message(Command::BuildSwitchModels(Speed));
 
+    motor1.build_and_send_message(Command::BuildTorque(0.02));
+
     motor1.build_and_send_message(Command::BuildAskstatus);
 
     thread::sleep(Duration::from_secs(1));
