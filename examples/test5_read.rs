@@ -25,5 +25,7 @@ fn main() {
     thread::sleep(Duration::from_secs(1));
 
     motor1.rdp_msg();
+    motor1.rdp_msg();
+    motor1.rdp_msg();
 
 }    
