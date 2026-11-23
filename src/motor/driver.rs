@@ -140,18 +140,18 @@ impl Motor {
     let coeffs = move_method::equation_coefficients(
         now_rad as f64,
         target_rad as f64,
-        0.2, 0.2,
+        0.0, 0.0,
         0.0, 0.0,
         tf,
     )?;
 
     let (time, position, _velocity, _acceleration) =
         move_method::equation_solution(coeffs, tf, 50)?;
-        println!("{:?}", &_acceleration);
-        println!{"====="};
-        println!("{:?}", &_velocity);
-        println!{"====="};
-        println!("{:?}", &position);
+        // println!("{:?}", &_acceleration);
+        // println!{"====="};
+        // println!("{:?}", &_velocity);
+        // println!{"====="};
+        // println!("{:?}", &position);
 
     let start_time = time::Instant::now();
 

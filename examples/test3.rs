@@ -31,8 +31,8 @@ fn main(){
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
 
-    motor1.build_and_send_message(Command::BuildState(-pi/4.0));
-    motor2.build_and_send_message(Command::BuildState(-pi/4.0));
+    motor1.build_and_send_message(Command::BuildState(0.0));
+    motor2.build_and_send_message(Command::BuildState(0.0));
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
