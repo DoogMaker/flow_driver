@@ -26,22 +26,48 @@ fn main() {
     // motor1.rdp_msg();
     // println!("Position Model is right");
 
-    let canbus1 = Arc::new(CanBus::canbus_init(1, 1, "can1".to_string()));
-    let motor1 = Motor::new(1, canbus1.clone());
+    let canbus1 = Arc::new(CanBus::canbus_init(7, 9, "can1".to_string()));
+    let motor7 = Motor::new(7, canbus1.clone());
+    let motor8 = Motor::new(8, canbus1.clone());
+    let motor9 = Motor::new(9, canbus1.clone());
 
-    motor1.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    thread::sleep(Duration::from_secs(1));
-    motor1.rdp_msg();
+    motor7.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
+    motor8.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
+    motor9.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
 
-    motor1.build_and_send_message(Command::BuildTorque(0.02));
-    motor1.build_and_send_message(Command::BuildSpeed(2.0));
-    thread::sleep(Duration::from_secs(2));
-    motor1.build_and_send_message(Command::BuildSpeed(0.0));
+    motor7.build_and_send_message(Command::BuildAskstatus);
+    thread::sleep(Duration::from_millis(20));
+    motor7.rdp_msg();
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    thread::sleep(Duration::from_secs(1));
-    motor1.rdp_msg();
-    println!("Position Model is right");
+    motor8.build_and_send_message(Command::BuildAskstatus);
+    thread::sleep(Duration::from_millis(20));
+    motor8.rdp_msg();
 
+    motor9.build_and_send_message(Command::BuildAskstatus);
+    thread::sleep(Duration::from_millis(20));
+    motor9.rdp_msg();
+
+    motor7.build_and_send_message(Command::BuildState(0.2));
+    motor8.build_and_send_message(Command::BuildState(0.2));
+    motor9.build_and_send_message(Command::BuildState(0.2));
+
+    thread::sleep(Duration::from_millis(20));
+
+    motor7.rdp_msg();
+    motor8.rdp_msg();
+    motor9.rdp_msg();
+
+    motor7.build_and_send_message(Command::BuildState(0.0));
+    motor8.build_and_send_message(Command::BuildState(0.0));
+    motor9.build_and_send_message(Command::BuildState(0.0));
+
+
+    thread::sleep(Duration::from_millis(20));
+
+    motor7.rdp_msg();
+    motor8.rdp_msg();
+    motor9.rdp_msg();
+
+    canbus1.canbus_close();
+    println!("Close SUCCESS");
 }
