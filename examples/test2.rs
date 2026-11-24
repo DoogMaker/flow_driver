@@ -31,9 +31,9 @@ fn main() {
     let motor8 = Motor::new(8, canbus1.clone());
     let motor9 = Motor::new(9, canbus1.clone());
 
-    motor7.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
-    motor8.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
-    motor9.build_and_send_message(Command::BuildSwitchModels(MotorMode::Speed));
+    motor7.build_and_send_message(Command::BuildSwitchModels(MotorMode::Position));
+    motor8.build_and_send_message(Command::BuildSwitchModels(MotorMode::Position));
+    motor9.build_and_send_message(Command::BuildSwitchModels(MotorMode::Position));
 
     motor7.build_and_send_message(Command::BuildAskstatus);
     thread::sleep(Duration::from_millis(20));
