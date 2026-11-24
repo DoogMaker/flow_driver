@@ -79,10 +79,10 @@ const BACKLEG: [f32; 3] = [
 fn main() {
     let motors = Arc::new(Motorss::Motorss_init());
 
-    let allrads = Allrad::init_all_rad();
+    let mut allrads = Allrad::init_all_rad();
     let mut target_rad: [f32; 12] = allrads.make_all_rad();
 
-    let mut target_rad: [f32; 12] = [0f32; 12];
+    let mut target_rad: [f32; 12] = STAND;
 
     for i in motors.id_s.iter() {
         i.build_and_send_message(Command::BuildSwitchModels(Position));
@@ -94,16 +94,55 @@ fn main() {
         i.build_and_send_message(Command::BuildAskstatus);
     }
 
+    timesleep(50);
+
     for i in motors.id_s.iter() {
         i.rdp_msg();
     }
     // 切换模式+检查 判断模式是否生效
 
+    allrads.lf_rad = [0.0, 1.0, 1.0];
+    target_rad = allrads.make_all_rad();
     for (index, motorr) in motors.id_s.iter().enumerate() {
         if let Err(e) = motorr.move_torad(target_rad[index]) {
             eprintln!("{e}");
         };
     }
+    timesleep(50);
+    println!("lf finish!");
 
-    timesleep(20);
+    allrads.rf_rad = [0.0, 1.0, 1.0];
+    target_rad = allrads.make_all_rad();
+    for (index, motorr) in motors.id_s.iter().enumerate() {
+        if let Err(e) = motorr.move_torad(target_rad[index]) {
+            eprintln!("{e}");
+        };
+    }
+    timesleep(50);
+    println!("rf finish!");
+
+    allrads.lh_rad = [0.0, 1.0, 1.0];
+    target_rad = allrads.make_all_rad();
+    for (index, motorr) in motors.id_s.iter().enumerate() {
+        if let Err(e) = motorr.move_torad(target_rad[index]) {
+            eprintln!("{e}");
+        };
+    }
+    timesleep(50);
+    println!("lh finish!");
+
+
+    allrads.rh_rad = [0.0, 1.0, 1.0];
+    target_rad = allrads.make_all_rad();
+    for (index, motorr) in motors.id_s.iter().enumerate() {
+        if let Err(e) = motorr.move_torad(target_rad[index]) {
+            eprintln!("{e}");
+        };
+    }
+    timesleep(50);
+    println!("rh finish!");
+
+    motors.stop();
+    println!("close success!")
+
 }

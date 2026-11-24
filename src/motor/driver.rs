@@ -174,6 +174,8 @@ pub struct Motorss {
     pub now_r: Arc<Mutex<[f64; 12]>>,
     // pub now_w: Arc<Mutex<[f64; 12]>>,
     running: Arc<AtomicBool>,
+    canbus1: Arc<CanBus>,
+    canbus2: Arc<CanBus>,
 }
 
 impl Motorss {
@@ -205,6 +207,8 @@ impl Motorss {
             now_r,
             // now_w,
             running,
+            canbus1,
+            canbus2,
         }
     }
 
@@ -225,6 +229,8 @@ impl Motorss {
     }
 
     pub fn stop(&self) {
-        self.running.store(false, Ordering::Relaxed);
+        // self.running.store(false, Ordering::Relaxed);
+        self.canbus1.canbus_close();
+        self.canbus2.canbus_close();
     }
 }
