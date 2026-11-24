@@ -20,7 +20,10 @@ fn main(){
 
     motor1.build_and_send_message(Command::BuildSetNodenum(target_id as u8));
 
-    motor2.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
+    thread::sleep(Duration::from_millis(30));
+
+    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
+    thread::sleep(Duration::from_millis(30));
 
     motor2.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None ));
 
