@@ -3,7 +3,7 @@ use flow_driver::motor::driver::Motorss;
 use flow_driver::{self, MotorMode::Position};
 use std::sync::Arc;
 use std::{
-    thread::{self, Thread},
+    thread::{self},
     time::Duration,
 };
 
@@ -11,13 +11,13 @@ fn timesleep(times: u64) {
     thread::sleep(Duration::from_millis(times));
 }
 
-struct All_rad {
+struct Allrad {
     lf_rad: [f32; 3],
     rf_rad: [f32; 3],
     lh_rad: [f32; 3],
     rh_rad: [f32; 3],
 }
-impl All_rad {
+impl Allrad {
     fn init_all_rad() -> Self {
         let mut lf_rad: [f32; 3] = [0f32; 3];
         let mut rf_rad: [f32; 3] = [0f32; 3];
@@ -41,10 +41,45 @@ impl All_rad {
     }
 }
 
+const LAY: [f32; 12] = [
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    ];
+
+const STAND: [f32; 12] = [
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+];
+
+const SIT: [f32; 12] = [
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+];
+
+const UPLEG: [f32; 3] = [
+    0.0, 0.0, 0.0,
+];
+
+const ADVANCELEG: [f32; 3] = [
+    0.0, 0.0, 0.0,
+];
+
+const BACKLEG: [f32; 3] = [
+    0.0, 0.0, 0.0,
+];
+
+
+
 fn main() {
     let motors = Arc::new(Motorss::Motorss_init());
 
-    let allrads = All_rad::init_all_rad();
+    let allrads = Allrad::init_all_rad();
     let mut target_rad: [f32; 12] = allrads.make_all_rad();
 
     let mut target_rad: [f32; 12] = [0f32; 12];
