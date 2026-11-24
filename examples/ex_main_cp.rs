@@ -7,6 +7,47 @@ use std::{
 };
 use flow_driver::{CanBus, Command, Motor, ParamOpcode, ParamId};
 
+
+const LAY: [f32; 12] = [
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    ];
+
+const STAND: [f32; 12] = [
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+];
+
+const SIT: [f32; 12] = [
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0,
+];
+
+const UPLEG: [f32; 3] = [
+    0.0, 0.0, 0.0,
+];
+
+const ADVANCELEG: [f32; 3] = [
+    0.0, 0.0, 0.0,
+];
+
+const BACKLEG: [f32; 3] = [
+    0.0, 0.0, 0.0,
+];
+
+const SIGN: [f32; 12] = [
+    1.0, 1.0, 1.0,
+    -1.0, -1.0, -1.0,
+    1.0, 1.0, 1.0,
+    -1.0, -1.0, -1.0,
+];
+
 fn timesleep(times: u64) {
     thread::sleep(Duration::from_millis(times));
 }
@@ -37,12 +78,10 @@ impl Allrad {
         target_rad[3..6].copy_from_slice(&self.rf_rad);
         target_rad[6..9].copy_from_slice(&self.lh_rad);
         target_rad[9..12].copy_from_slice(&self.rh_rad);
+        let target_rad: [f32; 12] = std::array::from_fn(|i| target_rad[i] * SIGN[i]);
         target_rad
     }
 }
-
-
-
 
 fn main() {
     let motors = Arc::new(Motorss::Motorss_init());
