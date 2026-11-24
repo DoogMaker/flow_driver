@@ -7,7 +7,7 @@ use std::{
 };
 use flow_driver::{CanBus, Command, Motor, ParamOpcode, ParamId};
 
-
+const TIMEOUT: u64 = 4;
 const LAY: [f32; 12] = [
     0.3, -0.4, -0.4,
     -0.3, 0.4, 0.4,
@@ -104,31 +104,31 @@ fn main() {
     for (index, motorr) in motors.id_s.iter().enumerate() {
         motorr.build_and_send_message(Command::BuildState(target_rad[index]));
     }
-    thread::sleep(Duration::from_secs_f32(1.5));
+    thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = STAND;
     for (index, motorr) in motors.id_s.iter().enumerate() {
         motorr.build_and_send_message(Command::BuildState(target_rad[index]));
     }
-    thread::sleep(Duration::from_secs_f32(1.5));
+    thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = LAY;
     for (index, motorr) in motors.id_s.iter().enumerate() {
         motorr.build_and_send_message(Command::BuildState(target_rad[index]));
     }
-    thread::sleep(Duration::from_secs_f32(1.5));
+    thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = SIT;
     for (index, motorr) in motors.id_s.iter().enumerate() {
         motorr.build_and_send_message(Command::BuildState(target_rad[index]));
     }
-    thread::sleep(Duration::from_secs_f32(1.5));
+    thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = LAY;
     for (index, motorr) in motors.id_s.iter().enumerate() {
         motorr.build_and_send_message(Command::BuildState(target_rad[index]));
     }
-    thread::sleep(Duration::from_secs_f32(1.5));
+    thread::sleep(Duration::from_secs(TIMEOUT));
 
     motors.stop();
     println!("close success!")
