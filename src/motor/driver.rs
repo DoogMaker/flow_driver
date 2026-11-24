@@ -21,13 +21,13 @@ impl Motor {
     /// id: motor id(you set)
     /// bus: can bus(need init)
     pub fn new (id: u32, bus: Arc<CanBus>) -> Self {
-        Self { 
+        Self {
             id,
             can_bus: Arc::clone(&bus),
         }
     }
 
-    /// build send_messages 
+    /// build send_messages
     /// input cmd: command
     /// return: (id, data)
     pub fn build_message(&self, cmd: command::Command) -> (u32, [u8; 8]) {
@@ -82,7 +82,7 @@ impl Motor {
             ReturnMessage::StatusFeedback(frame) => println!("status: {frame:?}"),
             ReturnMessage::ParameterResponse(frame) => println!("parameter: {frame:?}"),
         }
-        
+
     }
 
     /// decode msg
@@ -102,12 +102,12 @@ impl Motor {
         self.build_and_send_message(command::Command::BuildAskstatus);
 
         thread::sleep(Duration::from_secs_f32(0.1));
-    
+
         let frame_type = AllFrameBasic::StatusFeedbackFrame as u32;
-    
+
         let response = {
             let mut msg = self.can_bus.classed_msgs.lock().unwrap();
-    
+
             msg.iter_mut()
                 .find(|x| {
                     x.id == self.id
@@ -119,7 +119,7 @@ impl Motor {
                     Some((return_type, data))
                 })
         };
-    
+
         if let Some((return_type, data)) = response {
             if let Some((_, ReturnMessage::StatusFeedback(frame))) =
                 command::decode_recv_message(return_type, data)
@@ -127,7 +127,7 @@ impl Motor {
                 return Some(frame.rad);
             }
         }
-    
+
         None
     }
 
@@ -138,11 +138,12 @@ impl Motor {
         .ok_or("No rad return")?;
 
     let tf = 2.0;
+    let v_min: f64 = target_rad/50;
 
     let coeffs = move_method::equation_coefficients(
         now_rad as f64,
         target_rad as f64,
-        0.0, 0.0,
+        v_min, 0.0,
         0.0, 0.0,
         tf,
     )?;
