@@ -5,13 +5,15 @@ use crate::protocol::constants::AllFrameBasic;
 use crate::motor_move::move_method;
 use std::time::{self, Duration};
 use std::thread;
+use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Motor: motor class
 /// id: motor id
 /// can_bus: can bus
 pub struct Motor {
-    id: u32,
-    can_bus: Arc<CanBus>,
+    pub id: u32,
+    pub can_bus: Arc<CanBus>,
 }
 
 impl Motor {
@@ -162,5 +164,66 @@ impl Motor {
     }
 
     Ok(())
+    }
+
+}
+
+pub struct Motorss {
+    pub id_s: [Motor; 12],
+    pub now_r: Arc<Mutex<[f64; 12]>>,
+    // pub now_w: Arc<Mutex<[f64; 12]>>,
+    running: Arc<AtomicBool>,
+}
+
+impl Motorss {
+    pub fn Motorss_init() -> Self{
+        let canbus1 = Arc::new(CanBus::canbus_init(1, 6, "can0".to_string()));
+        let canbus2 = Arc::new(CanBus::canbus_init(7, 12, "can1".to_string()));
+
+        let id_s: [Motor; 12] = [
+            Motor::new(1,  Arc::clone(&canbus1)),
+            Motor::new(2,  Arc::clone(&canbus1)),
+            Motor::new(3,  Arc::clone(&canbus1)),
+            Motor::new(4,  Arc::clone(&canbus1)),
+            Motor::new(5,  Arc::clone(&canbus1)),
+            Motor::new(6,  Arc::clone(&canbus1)),
+            Motor::new(7,  Arc::clone(&canbus2)),
+            Motor::new(8,  Arc::clone(&canbus2)),
+            Motor::new(9,  Arc::clone(&canbus2)),
+            Motor::new(10, Arc::clone(&canbus2)),
+            Motor::new(11, Arc::clone(&canbus2)),
+            Motor::new(12, Arc::clone(&canbus2)),
+        ];
+
+        let now_r: Arc<Mutex<[f64; 12]>> = Arc::new(Mutex::new([0f64; 12]));
+        // let now_w: Arc<Mutex<[f64; 12]>> = Arc::new(Mutex::new([0f64; 12]));
+        let running = Arc::new(AtomicBool::new(true));
+
+        Motorss {
+            id_s,
+            now_r,
+            // now_w,
+            running,
+        }
+    }
+
+    pub fn flash_status(&self) {
+        while self.running.load(Ordering::Relaxed) {
+            for (index, motor) in self.id_s.iter().enumerate() {
+                match motor.get_rad() {
+                    Some(rad) => {
+                        let mut now_r = self.now_r.lock().unwrap();
+                        now_r[index] = rad as f64;
+                    }
+                    None => {
+                        eprintln!("motor {} rad read failed", motor.id);
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn stop(&self) {
+        self.running.store(false, Ordering::Relaxed);
     }
 }

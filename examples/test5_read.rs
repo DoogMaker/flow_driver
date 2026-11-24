@@ -1,7 +1,7 @@
 use std::{sync::Arc, thread, time::Duration};
 // use std::{thread, time::Duration};
 
-use flow_driver::{CanBus, MotorMode, Command, Motor, ParamOpcode, ParameterResponseFrame, ParamId};
+use flow_driver::{CanBus, Command, Motor, ParamOpcode, ParamId};
 
 fn main() {
     let canbus1 = Arc::new(CanBus::canbus_init(2, 2, "can1".to_string()));

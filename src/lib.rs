@@ -2,7 +2,7 @@
 #![warn(missing_docs, unnameable_types)]
 
 mod can;
-mod motor;
+pub mod motor;
 mod protocol;
 mod motor_move;
 

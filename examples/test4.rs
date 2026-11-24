@@ -1,4 +1,4 @@
-use flow_driver::{self, MotorMode::{Position, Speed}};
+use flow_driver::{self, MotorMode::{Position}};
 use std::{thread, time::Duration};
 use flow_driver::Command;
 use std::sync::{Arc};
