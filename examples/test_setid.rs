@@ -5,11 +5,12 @@ use flow_driver::{ParamOpcode};
 use std::sync::{Arc};
 
 fn main(){
+    let target_id:u8 = 2;
     let canbus1 = Arc::new(flow_driver::CanBus::canbus_init(1, 2, "can1".to_string()));
 
     let motor1 = flow_driver::Motor::new(1, canbus1.clone());
 
-    motor1.build_and_send_message(Command::BuildSetNodenum(2u8));
+    motor1.build_and_send_message(Command::BuildSetNodenum(target_id));
 
     motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
 
@@ -20,6 +21,7 @@ fn main(){
     motor1.build_and_send_message(Command::BuildAskstatus);
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
+    thread::sleep(Duration::from_secs(1));
 
     canbus1.canbus_close();
     println!("close success!");
