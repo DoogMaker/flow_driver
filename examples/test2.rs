@@ -51,7 +51,7 @@ fn main() {
     motor8.build_and_send_message(Command::BuildState(0.2));
     motor9.build_and_send_message(Command::BuildState(0.2));
 
-    thread::sleep(Duration::from_millis(20));
+    thread::sleep(Duration::from_secs(2));
 
     motor7.rdp_msg();
     motor8.rdp_msg();
@@ -61,8 +61,7 @@ fn main() {
     motor8.build_and_send_message(Command::BuildState(0.0));
     motor9.build_and_send_message(Command::BuildState(0.0));
 
-
-    thread::sleep(Duration::from_millis(20));
+    thread::sleep(Duration::from_secs(2));
 
     motor7.rdp_msg();
     motor8.rdp_msg();
