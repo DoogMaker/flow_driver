@@ -138,7 +138,7 @@ impl Motor {
         .ok_or("No rad return")?;
 
     let tf = 2.0;
-    let v_min: f64 = target_rad/50;
+    let v_min: f64 = target_rad as f64/50.0;
 
     let coeffs = move_method::equation_coefficients(
         now_rad as f64,
