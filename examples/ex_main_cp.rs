@@ -7,7 +7,7 @@ use std::{
 };
 use flow_driver::{CanBus, Command, Motor, ParamOpcode, ParamId};
 
-const TIMEOUT: u64 = 4;
+const TIMEOUT: u64 = 3;
 const LAY: [f32; 12] = [
     -0.4, -0.4, -0.4,
     0.4, 0.4, 0.4,
