@@ -27,6 +27,11 @@ can_reset:
 		@sudo ip link set $(CAN) up
 		@echo "=====$(CAN) reset====="
 
+can_log:
+	candump -ta -x -e can0,200:700,300:700,400:700 > can0.log &
+	candump -ta -x -e can1,200:700,300:700,400:700 > can1.log &
+	wait
+
 usb_check_MAC:
 		@ip -br a
 
