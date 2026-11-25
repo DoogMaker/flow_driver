@@ -54,8 +54,12 @@ impl Motor {
 
     /// receive and decode and print msg
     pub fn rdp_msg(&self) {
-        if let Some(msg) = self.recv_msg() {
-            self.decode_msg(msg.0, msg.1);
+        loop {
+            if let Some(msg) = self.recv_msg() {
+                self.decode_msg(msg.0, msg.1);
+            } else {
+                break;
+            }
         }
     }
 
