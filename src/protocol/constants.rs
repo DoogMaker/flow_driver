@@ -34,7 +34,15 @@ pub enum EncodeCMD {
 #[repr_cast(u8)]
 #[derive(Debug)]
 pub enum Models {
+    ///IDLE
+    /// OPEMLOOP
+    /// ALIGN
+    /// TORGUE
+    /// SPEED
+    /// POSSITION
+    /// FAULT
     /// default model
+    
     IDLE = 0x00,
     /// openloop model
     Openloop = 0x01,
@@ -289,7 +297,7 @@ pub enum ParameterResponseByte0 {
 pub enum ParameterResponseByte1 {
     SUCCESS = 0x00,
     INVALIDPARAM = 0x01,
-    UNKNOWNPARAMID = 0x02,
+    UNKNOWNParamFaulfID = 0x02,
     NOPERMISSION = 0x03,
     TYPEUNAVAILABLE = 0x04,
     VALUEOUTOFRANGE = 0x05,

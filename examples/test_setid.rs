@@ -1,7 +1,7 @@
 use flow_driver;
 use std::{thread, time::Duration};
 use flow_driver::CMD;
-use flow_driver::{ParamOpcode};
+use flow_driver::{ParamAction};
 use std::sync::{Arc};
 use std::env;
 
@@ -22,10 +22,10 @@ fn main(){
 
     thread::sleep(Duration::from_millis(30));
 
-    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
+    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, flow_driver::ParamFaulfID::None, None ));
     thread::sleep(Duration::from_millis(30));
 
-    motor2.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None ));
+    motor2.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, flow_driver::ParamFaulfID::None, None ));
 
     thread::sleep(Duration::from_secs(1));
 

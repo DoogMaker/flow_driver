@@ -1,11 +1,11 @@
-use flow_driver::MotorMode::Position;
+use flow_driver::Models;
 use flow_driver::motor::driver::Motorss;
 use std::sync::Arc;
 use std::{
     thread::{self},
     time::Duration,
 };
-use flow_driver::{CanBus, CMD, Motor, ParamOpcode, ParamId};
+use flow_driver::{CMD, ParamAction, ParamFaulfID};
 
 const TIMEOUT: u64 = 3;
 const LAY: [f32; 12] = [
@@ -90,14 +90,14 @@ fn main() {
     let mut target_rad: [f32; 12] = allrads.make_all_rad();
 
     // for i in motors.id_s.iter() {
-    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PoseloopKp), Some(100f32) ));
-    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(100f32) ));
+    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, None, None));
+    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, Some(ParamFaulfID::PoseloopKp), None));
+    //     i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, None, None));
     // }
     // thread::sleep(Duration::from_secs(1));
     for i in motors.id_s.iter() {
-        i.build_and_send_message(CMD::BuildSwitchModels(Position));
+        i.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
     }
     thread::sleep(Duration::from_secs(1));
 

@@ -1,6 +1,6 @@
 use flow_driver::CMD;
 use flow_driver::motor::driver::Motorss;
-use flow_driver::{self, MotorMode::Position};
+use flow_driver::{self, Models};
 use std::sync::Arc;
 use std::{
     thread::{self},
@@ -93,7 +93,7 @@ fn main() {
     let mut target_rad: [f32; 12] = STAND;
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(CMD::BuildSwitchModels(Position));
+        i.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
     }
 
     timesleep(20);

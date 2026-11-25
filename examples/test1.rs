@@ -1,4 +1,4 @@
-use flow_driver::{self, MotorMode::Openloop};
+use flow_driver::{self, Models::Openloop};
 use std::{thread, time::Duration};
 use flow_driver::CMD;
 use std::sync::{Arc};

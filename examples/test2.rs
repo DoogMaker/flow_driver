@@ -1,13 +1,13 @@
 use std::{sync::Arc, thread, time::Duration};
 // use std::{thread, time::Duration};
 
-use flow_driver::{CanBus, MotorMode, CMD, Motor};
+use flow_driver::{CanBus, Models, CMD, Motor};
 
 fn main() {
     // let canbus1 = Arc::new(CanBus::canbus_init(1, 1, "can1".to_string()));
     // let motor1 = Motor::new(1, canbus1.clone());
 
-    // motor1.build_and_send_message(CMD::BuildSwitchModels(MotorMode::Position));
+    // motor1.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
     // motor1.build_and_send_message(CMD::BuildAskstatus);
     // thread::sleep(Duration::from_secs(1));
     // motor1.rdp_msg();
@@ -31,9 +31,9 @@ fn main() {
     let motor8 = Motor::new(5, canbus1.clone());
     let motor9 = Motor::new(6, canbus1.clone());
 
-    motor7.build_and_send_message(CMD::BuildSwitchModels(MotorMode::Position));
-    motor8.build_and_send_message(CMD::BuildSwitchModels(MotorMode::Position));
-    motor9.build_and_send_message(CMD::BuildSwitchModels(MotorMode::Position));
+    motor7.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
+    motor8.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
+    motor9.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
 
     motor7.build_and_send_message(CMD::BuildAskstatus);
     thread::sleep(Duration::from_millis(20));

@@ -13,7 +13,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 /// id: motor id
 /// can_bus: can bus
 pub struct Motor {
+    ///
     pub id: u32,
+    ///
     pub can_bus: Arc<CanBus>,
 }
 
@@ -97,7 +99,7 @@ impl Motor {
     }
 
 
-    ///============================================================
+    ///============================================================================================
     ///get now rad
     pub fn get_rad(&self) -> Option<f32> {
         self.build_and_send_message(command::CMD::BuildAskstatus);
@@ -170,8 +172,11 @@ impl Motor {
 
 }
 
+///
 pub struct Motorss {
+    /// id
     pub id_s: [Motor; 12],
+    /// now rad
     pub now_r: Arc<Mutex<[f64; 12]>>,
     // pub now_w: Arc<Mutex<[f64; 12]>>,
     running: Arc<AtomicBool>,
@@ -180,6 +185,7 @@ pub struct Motorss {
 }
 
 impl Motorss {
+    ///
     pub fn Motorss_init() -> Self{
         let canbus1 = Arc::new(CanBus::canbus_init(1, 6, "can0".to_string()));
         let canbus2 = Arc::new(CanBus::canbus_init(7, 12, "can1".to_string()));

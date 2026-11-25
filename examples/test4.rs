@@ -1,4 +1,4 @@
-use flow_driver::{self, MotorMode::{IDLE, Position}};
+use flow_driver::{Models};
 use std::{thread, time::Duration};
 use flow_driver::CMD;
 use std::sync::{Arc};
@@ -12,8 +12,8 @@ fn main(){
     // 配置总线 将电机挂在在总线上
     let _pi = std::f32::consts::PI; // f32
 
-    motor8.build_and_send_message(CMD::BuildSwitchModels(Position));
-    motor9.build_and_send_message(CMD::BuildSwitchModels(Position));
+    motor8.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
+    motor9.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
 
     motor8.build_and_send_message(CMD::BuildAskstatus);
     thread::sleep(Duration::from_secs(1));
@@ -47,12 +47,12 @@ fn main(){
     motor9.build_and_send_message(CMD::BuildState(-0.4));
     thread::sleep(Duration::from_secs(1));
 
-    motor8.build_and_send_message(CMD::BuildSwitchModels(IDLE));
+    motor8.build_and_send_message(CMD::BuildSwitchModels(Models::IDLE));
     motor8.build_and_send_message(CMD::BuildAskstatus);
     thread::sleep(Duration::from_secs(1));
     motor8.rdp_msg();
 
-    motor9.build_and_send_message(CMD::BuildSwitchModels(IDLE));
+    motor9.build_and_send_message(CMD::BuildSwitchModels(Models::IDLE));
     motor9.build_and_send_message(CMD::BuildAskstatus);
     thread::sleep(Duration::from_secs(1));
     motor9.rdp_msg();

@@ -2,6 +2,7 @@
 #![warn(missing_docs, unnameable_types)]
 
 mod can;
+///
 pub mod motor;
 mod protocol;
 mod motor_move;
@@ -17,10 +18,10 @@ pub use protocol::command::{
 
 // 让 CMD 的每个变体都能被构造
 pub use protocol::constants::{
-    Models as MotorMode,
-    Direction as Direction,
-    ParamAction as ParamOpcode,
-    ParamFaulfID as ParamId,
+    Models,
+    Direction,
+    ParamAction,
+    ParamFaulfID,
 };
 
 // 输出类型：让外部能拿到结构化反馈

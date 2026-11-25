@@ -34,7 +34,7 @@ pub enum CMD
     /// build general parameters
     BuildGeneralParameters(
         ParamAction,
-        Some(ParamFaulfID),
+        ParamFaulfID,
         Option<f32>),
 }
 
@@ -134,7 +134,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_CMD_code() {
+    fn test_command_code() {
         let result = build_msg(1, CMD::BuildSpeed(10.0));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x01, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
@@ -175,31 +175,31 @@ mod tests {
         assert!(result.0 == 0x10A);
         assert!(result.1 == [0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(11, CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, Some(ParamFaulfID::SpeedLoopKp), None));
+        let result = build_msg(11, CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::SpeedLoopKp, None));
         assert!(result.0 == 0x10B);
         assert!(result.1 == [0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(12, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::SpeedLoopKp), Some(0.1)));
+        let result = build_msg(12, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::SpeedLoopKp, Some(0.1)));
         assert!(result.0 == 0x10C);
         assert!(result.1 == [0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_msg(1, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(0.5)));
+        let result = build_msg(1, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PoseloopKp, Some(0.5)));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_msg(2, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::FeedforwardVelGain), Some(1.0)));
+        let result = build_msg(2, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::FeedforwardVelGain, Some(1.0)));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
-        let result = build_msg(3, CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, None, None));
+        let result = build_msg(3, CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
         assert!(result.0 == 0x103);
         assert!(result.1 == [0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(4, CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, None, None));
+        let result = build_msg(4, CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
         assert!(result.0 == 0x104);
         assert!(result.1 == [0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(5, CMD::BuildGeneralParameters(ParamAction::ResetDefault, None, None));
+        let result = build_msg(5, CMD::BuildGeneralParameters(ParamAction::ResetDefault, ParamFaulfID::None, None));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     }
