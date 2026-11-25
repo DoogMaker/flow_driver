@@ -1,6 +1,7 @@
-use flow_driver::Command;
+use flow_driver::{Command, ParamId, ParamOpcode};
 use flow_driver::motor::driver::Motorss;
 use flow_driver::{self, MotorMode::Position};
+use std::range;
 use std::sync::Arc;
 use std::{
     thread::{self},
@@ -93,62 +94,108 @@ fn main() {
     let mut target_rad: [f32; 12] = STAND;
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildSwitchModels(Position));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PositionErrorThreshold), Some(0.1f32) ));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
     }
-
-    timesleep(20);
+    thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildAskstatus);
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PoseloopKi), Some(5f32) ));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
     }
-
-    timesleep(50);
+    thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.rdp_msg();
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::FeedforwardInertia), Some(0.005f32) ));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
     }
-    // 切换模式+检查 判断模式是否生效
+    thread::sleep(Duration::from_secs(1));
 
-    allrads.lf_rad = [0.0, 1.0, 1.0];
-    target_rad = allrads.make_all_rad();
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        if let Err(e) = motorr.move_torad(target_rad[index]) {
-            eprintln!("{e}");
-        };
+    for i in motors.id_s.iter() {
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PositionErrorTimeouttick), Some(600f32) ));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
     }
-    timesleep(50);
-    println!("lf finish!");
+    thread::sleep(Duration::from_secs(1));
 
-    allrads.rf_rad = [0.0, 1.0, 1.0];
-    target_rad = allrads.make_all_rad();
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        if let Err(e) = motorr.move_torad(target_rad[index]) {
-            eprintln!("{e}");
-        };
+    for i in motors.id_s.iter() {
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::SpeedLoopKi), Some(1f32) ));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
     }
-    timesleep(50);
-    println!("rf finish!");
+    thread::sleep(Duration::from_secs(1));
 
-    allrads.lh_rad = [0.0, 1.0, 1.0];
-    target_rad = allrads.make_all_rad();
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        if let Err(e) = motorr.move_torad(target_rad[index]) {
-            eprintln!("{e}");
-        };
+    for _ in 0..=5 {
+        for i in motors.id_s.iter() {
+            i.rdp_msg();
+        }
     }
-    timesleep(50);
-    println!("lh finish!");
+
+    // for i in motors.id_s.iter() {
+    //     i.build_and_send_message(Command::BuildSwitchModels(Position));
+    // }
+
+    // timesleep(20);
+
+    // for i in motors.id_s.iter() {
+    //     i.build_and_send_message(Command::BuildAskstatus);
+    // }
+
+    // timesleep(50);
+
+    // for i in motors.id_s.iter() {
+    //     i.rdp_msg();
+    // }
+    // // 切换模式+检查 判断模式是否生效
+
+    // allrads.lf_rad = [0.0, 1.0, 1.0];
+    // target_rad = allrads.make_all_rad();
+    // for (index, motorr) in motors.id_s.iter().enumerate() {
+    //     if let Err(e) = motorr.move_torad(target_rad[index]) {
+    //         eprintln!("{e}");
+    //     };
+    // }
+    // timesleep(50);
+    // println!("lf finish!");
+
+    // allrads.rf_rad = [0.0, 1.0, 1.0];
+    // target_rad = allrads.make_all_rad();
+    // for (index, motorr) in motors.id_s.iter().enumerate() {
+    //     if let Err(e) = motorr.move_torad(target_rad[index]) {
+    //         eprintln!("{e}");
+    //     };
+    // }
+    // timesleep(50);
+    // println!("rf finish!");
+
+    // allrads.lh_rad = [0.0, 1.0, 1.0];
+    // target_rad = allrads.make_all_rad();
+    // for (index, motorr) in motors.id_s.iter().enumerate() {
+    //     if let Err(e) = motorr.move_torad(target_rad[index]) {
+    //         eprintln!("{e}");
+    //     };
+    // }
+    // timesleep(50);
+    // println!("lh finish!");
 
 
-    allrads.rh_rad = [0.0, 1.0, 1.0];
-    target_rad = allrads.make_all_rad();
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        if let Err(e) = motorr.move_torad(target_rad[index]) {
-            eprintln!("{e}");
-        };
-    }
-    timesleep(50);
-    println!("rh finish!");
+    // allrads.rh_rad = [0.0, 1.0, 1.0];
+    // target_rad = allrads.make_all_rad();
+    // for (index, motorr) in motors.id_s.iter().enumerate() {
+    //     if let Err(e) = motorr.move_torad(target_rad[index]) {
+    //         eprintln!("{e}");
+    //     };
+    // }
+    // timesleep(50);
+    // println!("rh finish!");
 
     motors.stop();
     println!("close success!")
