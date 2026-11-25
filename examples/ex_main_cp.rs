@@ -107,5 +107,9 @@ fn main() {
     thread::sleep(Duration::from_secs(TIMEOUT));
 
     motors.stop();
-    println!("close success!")
+    println!("close success!");
+
+    for i in motors.id_s.iter() {
+        i.rdp_msg();
+    }
 }
