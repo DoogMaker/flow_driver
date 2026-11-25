@@ -102,12 +102,19 @@ fn main() {
     }
     thread::sleep(Duration::from_secs(1));
 
-    target_rad = STAND;
+    target_rad = STAND1;
     for (index, motorr) in motors.id_s.iter().enumerate() {
         motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
         motorr.build_and_send_message(CMD::BuildAskstatus);
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
+
+    target_rad = STAND2;
+        for (index, motorr) in motors.id_s.iter().enumerate() {
+            motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
+            motorr.build_and_send_message(CMD::BuildAskstatus);
+        }
+        thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = LAY;
     for (index, motorr) in motors.id_s.iter().enumerate() {
