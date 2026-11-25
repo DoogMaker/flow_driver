@@ -17,10 +17,10 @@ pub use protocol::command::{
 
 // 让 Command 的每个变体都能被构造
 pub use protocol::constants::{
-    SwitchModelsByte1 as MotorMode,
-    SetDirectionByte1 as Direction,
-    GeneralParametersByte1 as ParamOpcode,
-    GeneralParametersByte23 as ParamId,
+    Models as MotorMode,
+    Direction as Direction,
+    ParamAction as ParamOpcode,
+    ParamFaulfID as ParamId,
 };
 
 // 输出类型：让外部能拿到结构化反馈

@@ -4,31 +4,21 @@ use super::constants::*;
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct StatusFeedbackFrame
-{   ///
-    pub system_state: StatusFeedbackByte0,
-    ///
+{   /// FeedBackStatus
+    pub system_state: FeedBackStatus,
+    /// rotation speed
     pub rotation_speed: f32,
-    ///
+    /// current a
     pub current_a: f32,
-    ///
-    pub model: StatusFeedbackByte5,
-    ///
+    /// model
+    pub model: Models,
+    /// rad
     pub rad: f32,
 
 }
 
-// pub fn unknow_decode(data: &[u8]) -> Option<[u8; 8]>
-// {
-//     if data.len() < 8 {
-//         println!("data length must be 8");
-//         return None;
-//     }
-
-//     let mut raw_bytes = [0u8; 8];
-//     raw_bytes.copy_from_slice(&data[0..8]);
-//     Some(raw_bytes)
-// }
-
+/// Right -> StatusFeedbackFrame
+/// Err -> None and Warning
 pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 {
     if data.len() < 8 {
@@ -36,16 +26,14 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
         return None;
     }
 
-    let Some(system_state) = StatusFeedbackByte0::from_repr(data[0])
+    let Some(system_state) = FeedBackStatus::from_repr(data[0])
         else {
             panic!("system_state is invalid")
         };
 
     let rotation_speed = i16::from_le_bytes([data[1], data[2]]) as f32 / TARGETSPEED;
-
     let current_a = i16::from_le_bytes([data[3], data[4]]) as f32 / CURRENT_A;
-
-    let Some(model) = StatusFeedbackByte5::from_repr(data[5])
+    let Some(model) = Models::from_repr(data[5])
         else {
             println!("model is invalid");
             return None;
@@ -67,15 +55,17 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 pub struct FaultDetailsFrame
 {   
     /// falt code
-    pub fault_code: FaultDetailsByte0,
+    pub fault_code: FaultCode,
     /// fault details
-    pub fault_mask_code: FaultDetailsByte23,
+    pub fault_mask_code: FaultMaskCode,
     /// drv8353 status1
-    pub drv8353_status1: Option<FaultDetailsByte45>,
+    pub drv8353_status1: Option<Drv8353Status1>,
     /// drv8353 status2
-    pub drv8353_status2: Option<FaultDetailsByte67>,
+    pub drv8353_status2: Option<Drv8353Status2>,
 }
 
+/// Right -> FaultDetailsFrame
+/// Err -> None and Warning
 pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
 {
     if data.len() < 8 {
@@ -83,20 +73,18 @@ pub fn fault_details_frame(data: &[u8]) -> Option<FaultDetailsFrame>
         return None;
     }
 
-    let Some(fault_code) = FaultDetailsByte0::from_repr(data[0])
+    let Some(fault_code) = FaultCode::from_repr(data[0])
         else {
             println!("fault_code is invalid");
             return None;
         };
 
     let fault_details: bool = data[1] == FaultDetailsByte1::VALIDSTATUS as u8;
-
-    let fault_mask_code: FaultDetailsByte23 = FaultDetailsByte23::from_bits_truncate(u16::from_le_bytes([data[2], data[3]]));
-
+    let fault_mask_code: FaultMaskCode = FaultMaskCode::from_bits_truncate(u16::from_le_bytes([data[2], data[3]]));
     let (drv8353_status1, drv8353_status2) = if fault_details
     {
-        (Some(FaultDetailsByte45::from_bits_truncate(u16::from_le_bytes([data[4], data[5]]))),
-        Some(FaultDetailsByte67::from_bits_truncate(u16::from_le_bytes([data[6], data[7]]))))
+        (Some(Drv8353Status1::from_bits_truncate(u16::from_le_bytes([data[4], data[5]]))),
+        Some(Drv8353Status2::from_bits_truncate(u16::from_le_bytes([data[6], data[7]]))))
     } else {
         (None, None)
     };
@@ -131,6 +119,8 @@ pub struct ParameterResponseFrame
     val: ParameterResponseFrameVal,
 }
 
+/// Right -> ParameterResponseFrame
+/// Err -> None and Warning
 pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
 {
     if data.len() < 8 {
@@ -148,13 +138,18 @@ pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
     let Some(err_code) =
         ParameterResponseByte1::from_repr(data[1])
         else {
-            panic!("err_code is invalid")
+            println!("err_code is invalid");
+            return None;
         };
-    let parameter_id: GeneralParametersByte23 =
+
+    let Some(parameter_id) =
         ParameterResponseByte23::from_repr(u16::from_le_bytes(
             [data[2], data[3]]
             )
-        ).unwrap();
+        ) else {
+            println!("parameter_id is invalid");
+            return None;
+        };
 
     let val = match opcode_echo
     {

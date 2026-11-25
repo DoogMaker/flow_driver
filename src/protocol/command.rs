@@ -11,10 +11,9 @@ pub(crate) const FAULT_DETAILS_FRAME_HEIGH: u16 = FAULT_DETAILS_FRAME_LOW + MAX_
 
 pub(crate) const PARAMETER_RESPONSE_FRAME_LOW: u16 = AllFrameBasic::ParameterResponseFrame as u16;
 pub(crate) const PARAMETER_RESPONSE_FRAME_HEIGH: u16 = PARAMETER_RESPONSE_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
-pub(crate) type Models = SwitchModelsByte1;
-pub(crate) type Direction = SetDirectionByte1;
-pub(crate) type Opcode = GeneralParametersByte1;
-pub(crate) type Id = Option<GeneralParametersByte23>;
+
+// pub(crate) type Opcode = ParamAction;
+// pub(crate) type Id = ParamFaulfID;
 
 /// Command
 /// including motor all commands
@@ -40,14 +39,14 @@ pub enum Command
     BuildSetNodenum(u8),
     /// build general parameters
     BuildGeneralParameters(
-        Opcode,
-        Id,
+        ParamAction,
+        ParamFaulfID,
         Option<f32>),
 }
 
 pub fn build_send_message(node_id: u32, command: Command) -> (u32, [u8; 8])
 {
-    let frame_id: u32 = command_frame_id(node_id);
+    let frame_id: u32 = make_frame(node_id);
     let data: [u8; 8] = match command
     {
         Command::BuildSpeed(val) =>
@@ -137,12 +136,6 @@ pub fn decode_recv_message(return_type: u32, data: [u8; 8]) -> Option<(u32, Retu
     message.map(|message| (return_type, message))
 }
 
-// pub fn test_unknow_decode(data: [u8; 8]) -> Option<[u8; 8]>
-// {
-//     let result = unknow_decode(&data);
-//     result
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -189,19 +182,19 @@ mod tests {
         assert!(result.0 == 0x10A);
         assert!(result.1 == [0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(11, Command::BuildGeneralParameters(Opcode::ReadEffectiveval, Some(GeneralParametersByte23::SpeedLoopKp), None));
+        let result = build_send_message(11, Command::BuildGeneralParameters(Opcode::ReadEffectiveval, Some(ParamFaulfID::SpeedLoopKp), None));
         assert!(result.0 == 0x10B);
         assert!(result.1 == [0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(12, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::SpeedLoopKp), Some(0.1)));
+        let result = build_send_message(12, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(ParamFaulfID::SpeedLoopKp), Some(0.1)));
         assert!(result.0 == 0x10C);
         assert!(result.1 == [0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_send_message(1, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::PoseloopKp), Some(0.5)));
+        let result = build_send_message(1, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(0.5)));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_send_message(2, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(GeneralParametersByte23::FeedforwardVelGain), Some(1.0)));
+        let result = build_send_message(2, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(ParamFaulfID::FeedforwardVelGain), Some(1.0)));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
