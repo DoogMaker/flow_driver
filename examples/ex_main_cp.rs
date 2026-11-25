@@ -7,7 +7,7 @@ use std::{
 };
 use flow_driver::{CMD, ParamAction, ParamFaulfID};
 
-const TIMEOUT: u64 = 5;
+const TIMEOUT: u64 = 8;
 const LAY: [f32; 12] = [
     -0.0, -0.0, -0.0,
     0.0, 0.0, 0.0,
@@ -16,10 +16,10 @@ const LAY: [f32; 12] = [
     ];
 
 const STAND1: [f32; 12] = [
-    -0.0, 0.0, 0.5,
-    0.0, -0.0, -0.5,
-    0.0, 0.0, 0.5,
-    -0.0, -0.0, -0.5,
+    -0.0, 0.9, 0.9,
+    0.0, -0.9, -0.9,
+    0.0, 0.9, 0.9,
+    -0.0, -0.9, -0.9,
 ];
 
 const STAND2: [f32; 12] = [
@@ -108,13 +108,13 @@ fn main() {
         motorr.build_and_send_message(CMD::BuildAskstatus);
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
-
-    target_rad = STAND2;
-        for (index, motorr) in motors.id_s.iter().enumerate() {
-            motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
-            motorr.build_and_send_message(CMD::BuildAskstatus);
-        }
-        thread::sleep(Duration::from_secs(TIMEOUT));
+//
+//     target_rad = STAND2;
+//         for (index, motorr) in motors.id_s.iter().enumerate() {
+//             motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
+//             motorr.build_and_send_message(CMD::BuildAskstatus);
+//         }
+//         thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = LAY;
     for (index, motorr) in motors.id_s.iter().enumerate() {
