@@ -26,10 +26,10 @@ fn main() {
     // motor1.rdp_msg();
     // println!("Position Model is right");
 
-    let canbus1 = Arc::new(CanBus::canbus_init(1, 3, "can0".to_string()));
-    let motor7 = Motor::new(1, canbus1.clone());
-    let motor8 = Motor::new(2, canbus1.clone());
-    let motor9 = Motor::new(3, canbus1.clone());
+    let canbus1 = Arc::new(CanBus::canbus_init(4, 6, "can0".to_string()));
+    let motor7 = Motor::new(4, canbus1.clone());
+    let motor8 = Motor::new(5, canbus1.clone());
+    let motor9 = Motor::new(6, canbus1.clone());
 
     motor7.build_and_send_message(Command::BuildSwitchModels(MotorMode::Position));
     motor8.build_and_send_message(Command::BuildSwitchModels(MotorMode::Position));
