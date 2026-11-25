@@ -119,7 +119,7 @@ fn main() {
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PositionErrorTimeouttick, Some(1000f32)));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PositionErrorTimeouttick, Some(2000f32)));
         i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
         i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
         i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
@@ -143,7 +143,7 @@ fn main() {
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PositionErrorThreshold, Some(0.2f32) ));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PositionErrorThreshold, Some(0.4f32) ));
         i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
         i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PositionErrorThreshold, None));
         i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
