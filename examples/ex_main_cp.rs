@@ -7,7 +7,7 @@ use std::{
 };
 use flow_driver::{CMD, ParamAction, ParamFaulfID};
 
-const TIMEOUT: u64 = 8;
+const TIMEOUT: u64 = 10;
 const LAY: [f32; 12] = [
     -0.0, -0.0, -0.0,
     0.0, 0.0, 0.0,
