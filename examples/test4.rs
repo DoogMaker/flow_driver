@@ -24,27 +24,27 @@ fn main(){
     motor9.rdp_msg();
 
     motor8.build_and_send_message(Command::BuildState(0.4));
-    motor9.build_and_send_message(Command::BuildState(0.4));
+    motor9.build_and_send_message(Command::BuildState(0.0));
     thread::sleep(Duration::from_secs(1));
 
     motor8.build_and_send_message(Command::BuildState(-0.4));
-    motor9.build_and_send_message(Command::BuildState(-0.4));
+    motor9.build_and_send_message(Command::BuildState(-0.0));
     thread::sleep(Duration::from_secs(1));
 
     motor8.build_and_send_message(Command::BuildState(0.4));
-    motor9.build_and_send_message(Command::BuildState(0.4));
+    motor9.build_and_send_message(Command::BuildState(0.0));
     thread::sleep(Duration::from_secs(1));
 
     motor8.build_and_send_message(Command::BuildState(-0.4));
-    motor9.build_and_send_message(Command::BuildState(-0.4));
+    motor9.build_and_send_message(Command::BuildState(-0.0));
     thread::sleep(Duration::from_secs(1));
 
     motor8.build_and_send_message(Command::BuildState(0.4));
-    motor9.build_and_send_message(Command::BuildState(0.4));
+    motor9.build_and_send_message(Command::BuildState(0.0));
     thread::sleep(Duration::from_secs(1));
 
     motor8.build_and_send_message(Command::BuildState(-0.4));
-    motor9.build_and_send_message(Command::BuildState(-0.4));
+    motor9.build_and_send_message(Command::BuildState(-0.0));
     thread::sleep(Duration::from_secs(1));
 
     motor8.build_and_send_message(Command::BuildSwitchModels(IDLE));
