@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-use flow_driver::{self, MotorMode::{Openloop, Position}};
-=======
-use flow_driver::{self, Models::Openloop};
->>>>>>> feature/0.2.0
+use flow_driver::{self, Models};
 use std::{thread, time::Duration};
 use flow_driver::CMD;
 use std::sync::{Arc};
@@ -13,16 +9,16 @@ fn main(){
     let motor1 = flow_driver::Motor::new(1, canbus1.clone());
     // 配置总线 将电机挂在在总线上
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
 
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
 
-    motor1.build_and_send_message(Command::BuildSwitchModels(Position));
-    motor1.build_and_send_message(Command::BuildState(-0.4));
+    motor1.build_and_send_message(CMD::BuildSwitchModels(Models::Openloop));
+    motor1.build_and_send_message(CMD::BuildState(-0.4));
     thread::sleep(Duration::from_secs(5));
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
     motor1.rdp_msg();
 
     thread::sleep(Duration::from_secs(1));

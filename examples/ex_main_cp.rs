@@ -7,19 +7,19 @@ use std::{
 };
 use flow_driver::{CMD, ParamAction, ParamFaulfID};
 
-const TIMEOUT: u64 = 3;
+const TIMEOUT: u64 = 5;
 const LAY: [f32; 12] = [
-    -0.4, -0.4, -0.4,
-    0.4, 0.4, 0.4,
-    0.4, -0.4, -0.4,
-    -0.4, 0.4, 0.4,
+    -0.0, -0.0, -0.0,
+    0.0, 0.0, 0.0,
+    0.0, -0.0, -0.0,
+    -0.0, 0.0, 0.0,
     ];
 
 const STAND: [f32; 12] = [
-    -0.4, 0.4, 0.2,
-    0.4, -0.4, -0.2,
-    0.4, 0.4, 0.2,
-    -0.4, -0.4, -0.2,
+    -0.0, 0.4, 0.2,
+    0.0, -0.4, -0.2,
+    0.0, 0.4, 0.2,
+    -0.0, -0.4, -0.2,
 ];
 
 const SIT: [f32; 12] = [
@@ -93,30 +93,6 @@ fn main() {
         i.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
     }
     thread::sleep(Duration::from_secs(1));
-
-    target_rad = STAND;
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
-    }
-    thread::sleep(Duration::from_secs(TIMEOUT));
-
-    target_rad = LAY;
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
-    }
-    thread::sleep(Duration::from_secs(TIMEOUT));
-
-    target_rad = STAND;
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
-    }
-    thread::sleep(Duration::from_secs(TIMEOUT));
-
-    target_rad = SIT;
-    for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
-    }
-    thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = STAND;
     for (index, motorr) in motors.id_s.iter().enumerate() {

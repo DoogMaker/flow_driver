@@ -1,6 +1,6 @@
-use flow_driver::{Command, ParamId, ParamOpcode};
+use flow_driver::{CMD, ParamAction};
 use flow_driver::motor::driver::Motorss;
-use flow_driver::{self, MotorMode::Position};
+use flow_driver::{self, Models, ParamFaulfID};
 use std::range;
 
 use std::sync::Arc;
@@ -95,50 +95,50 @@ fn main() {
     let mut target_rad: [f32; 12] = STAND;
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PositionErrorThreshold), Some(0.1f32) ));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PositionErrorThreshold, Some(0.1f32))); // PositionErrorthreshold
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
     }
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PoseloopKi), Some(5f32) ));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PoseloopKi, Some(5f32)));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
     }
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::FeedforwardInertia), Some(0.005f32) ));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::FeedforwardInertia, Some(0.005f32)));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
     }
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PositionErrorTimeouttick), Some(600f32) ));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PositionErrorTimeouttick, Some(600f32)));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
     }
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::SpeedLoopKi), Some(1f32) ));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::SpeedLoopKi, Some(1f32) ));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
     }
     thread::sleep(Duration::from_secs(1));
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PoseloopKp), Some(50f32) ));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PoseloopKp, Some(50f32) ));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+        i.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
     }
     thread::sleep(Duration::from_secs(1));
 

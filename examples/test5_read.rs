@@ -9,16 +9,15 @@ fn main() {
 
     //   EncoderOffset = 0x0308,
     //   EncoderDirection = 0x0309,
-<<<<<<< HEAD
     //  0x0117 0.1 PositionErrorThreshold
     //  0x010A 5 PoseloopKi
     //  0x010D 0.005 FeedforwardInertia
     //  0x0115 600 PositionErrorTimeouttick
     //  0x0101 1 SpeedLoopKi
-    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PoseloopKp), Some(100f32) ));
-    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
-    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
-    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PoseloopKp, Some(100f32)));
+    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::PoseloopKp, None));
+    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
 
     // thread::sleep(Duration::from_secs(1));
     // motor1.rdp_msg();
