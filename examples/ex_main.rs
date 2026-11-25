@@ -133,6 +133,15 @@ fn main() {
     }
     thread::sleep(Duration::from_secs(1));
 
+    for i in motors.id_s.iter() {
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::WriteTemporaryval, Some(ParamId::PoseloopKp), Some(50f32) ));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::PoseloopKp), None));
+        i.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None));
+    }
+    thread::sleep(Duration::from_secs(1));
+
+
     for _ in 0..=5 {
         for i in motors.id_s.iter() {
             i.rdp_msg();
