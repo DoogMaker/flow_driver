@@ -11,11 +11,11 @@ pub use motor::driver::Motor;
 
 // 门面：命令、返回值、帧类型基址
 pub use protocol::command::{
-    Command, ReturnMessage,
+    CMD, ReturnMessage,
 
 };
 
-// 让 Command 的每个变体都能被构造
+// 让 CMD 的每个变体都能被构造
 pub use protocol::constants::{
     Models as MotorMode,
     Direction as Direction,

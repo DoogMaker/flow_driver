@@ -1,6 +1,7 @@
 use std::sync::{Arc};
 use crate::can::transport::{CanBus, MotorMsg};
-use crate::protocol::command::{self, ReturnMessage};
+use crate::protocol::command::{ReturnMessage};
+use crate::protocol::command;
 use crate::protocol::constants::AllFrameBasic;
 use crate::motor_move::move_method;
 use std::time::{self, Duration};
@@ -28,10 +29,10 @@ impl Motor {
     }
 
     /// build send_messages
-    /// input cmd: command
+    /// input CMD: CMD
     /// return: (id, data)
-    pub fn build_message(&self, cmd: command::Command) -> (u32, [u8; 8]) {
-        let (id, data) = command::build_send_message(self.id, cmd);
+    pub fn build_message(&self, cmd: command::CMD) -> (u32, [u8; 8]) {
+        let (id, data) = command::build_msg(self.id, cmd);
         (id, data)
     }
 
@@ -43,8 +44,8 @@ impl Motor {
 
     /// build and send send_msg
     /// include build_message and send_messages
-    /// input cmd: command
-    pub fn build_and_send_message(&self, cmd: command::Command) {
+    /// input CMD: CMD
+    pub fn build_and_send_message(&self, cmd: command::CMD) {
         let data = self.build_message(cmd);
         self.send_messages(data);
     }
@@ -96,10 +97,10 @@ impl Motor {
     }
 
 
-
+    ///============================================================
     ///get now rad
     pub fn get_rad(&self) -> Option<f32> {
-        self.build_and_send_message(command::Command::BuildAskstatus);
+        self.build_and_send_message(command::CMD::BuildAskstatus);
 
         thread::sleep(Duration::from_secs_f32(0.1));
 
@@ -161,7 +162,7 @@ impl Motor {
     for (&t, &rad) in time.iter().zip(position.iter()) {
         let deadline = start_time + time::Duration::from_secs_f64(t);
         thread::sleep(deadline.saturating_duration_since(time::Instant::now()));
-        self.build_and_send_message(command::Command::BuildState(rad as f32));
+        self.build_and_send_message(command::CMD::BuildState(rad as f32));
     }
 
     Ok(())

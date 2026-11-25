@@ -1,6 +1,6 @@
 use flow_driver::{self, MotorMode::{Position}};
 use std::{thread, time::Duration};
-use flow_driver::Command;
+use flow_driver::CMD;
 use std::sync::{Arc};
 
 fn main(){
@@ -11,11 +11,11 @@ fn main(){
     // 配置总线 将电机挂在在总线上
     let pi = std::f32::consts::PI; // f32
 
-    motor1.build_and_send_message(Command::BuildSwitchModels(Position));
-    motor2.build_and_send_message(Command::BuildSwitchModels(Position));
+    motor1.build_and_send_message(CMD::BuildSwitchModels(Position));
+    motor2.build_and_send_message(CMD::BuildSwitchModels(Position));
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    motor2.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
+    motor2.build_and_send_message(CMD::BuildAskstatus);
     // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));
@@ -25,20 +25,20 @@ fn main(){
     motor2.rdp_msg();
     // 读取消息并打印
 
-    motor1.build_and_send_message(Command::BuildState(pi/4.0));
-    motor2.build_and_send_message(Command::BuildState(pi/4.0));
+    motor1.build_and_send_message(CMD::BuildState(pi/4.0));
+    motor2.build_and_send_message(CMD::BuildState(pi/4.0));
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
 
-    motor1.build_and_send_message(Command::BuildState(0.0));
-    motor2.build_and_send_message(Command::BuildState(0.0));
+    motor1.build_and_send_message(CMD::BuildState(0.0));
+    motor2.build_and_send_message(CMD::BuildState(0.0));
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    motor2.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
+    motor2.build_and_send_message(CMD::BuildAskstatus);
     // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));

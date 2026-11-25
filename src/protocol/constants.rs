@@ -10,14 +10,14 @@ pub const CURRENT_A: f32 = 100.0;
 
 #[repr(u16)]
 pub enum AllFrameBasic {
-    CommandFrame = 0x100,
+    CMDFrame = 0x100,
     StatusFeedbackFrame = 0x200,
     FaultDetailsFrame = 0x300,
     ParameterResponseFrame = 0x400,
 }
 
 #[repr(u8)]
-pub enum EncodeCommand {
+pub enum EncodeCMD {
     TargetSpeed = 0x01,
     OpenloopVoltage = 0x02,
     SwitchModels = 0x03,

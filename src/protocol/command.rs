@@ -1,8 +1,6 @@
 use super::constants::*;
 use super::decode::*;
 use super::encode::*;
-
-
 pub(crate) const STATUS_FEEDBACK_FRAME_LOW: u16 = AllFrameBasic::StatusFeedbackFrame as u16;
 pub(crate) const STATUS_FEEDBACK_FRAME_HEIGH: u16 = STATUS_FEEDBACK_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
@@ -12,12 +10,8 @@ pub(crate) const FAULT_DETAILS_FRAME_HEIGH: u16 = FAULT_DETAILS_FRAME_LOW + MAX_
 pub(crate) const PARAMETER_RESPONSE_FRAME_LOW: u16 = AllFrameBasic::ParameterResponseFrame as u16;
 pub(crate) const PARAMETER_RESPONSE_FRAME_HEIGH: u16 = PARAMETER_RESPONSE_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
-// pub(crate) type Opcode = ParamAction;
-// pub(crate) type Id = ParamFaulfID;
-
-/// Command
-/// including motor all commands
-pub enum Command
+/// CMD
+pub enum CMD
 {
     /// set speed
     BuildSpeed(f32),
@@ -40,35 +34,35 @@ pub enum Command
     /// build general parameters
     BuildGeneralParameters(
         ParamAction,
-        ParamFaulfID,
+        Some(ParamFaulfID),
         Option<f32>),
 }
 
-pub fn build_send_message(node_id: u32, command: Command) -> (u32, [u8; 8])
+pub fn build_msg(node_id: u32, cmd: CMD) -> (u32, [u8; 8])
 {
     let frame_id: u32 = make_frame(node_id);
-    let data: [u8; 8] = match command
+    let data: [u8; 8] = match cmd
     {
-        Command::BuildSpeed(val) =>
+        CMD::BuildSpeed(val) =>
             build_speed(val),
-        Command::BuildOpenloopVoltage(val) =>
+        CMD::BuildOpenloopVoltage(val) =>
             build_openloop_voltage(val),
-        Command::BuildSwitchModels(model) =>
+        CMD::BuildSwitchModels(model) =>
             build_switch_models(model),
-        Command::BuildSetDirection(direction) =>
+        CMD::BuildSetDirection(direction) =>
             build_set_direction(direction),
-        Command::BuildTorque(val) =>
+        CMD::BuildTorque(val) =>
             build_torque(val),
-        Command::BuildState(val) =>
+        CMD::BuildState(val) =>
             build_state(val),
-        Command::BuildKeepalive =>
+        CMD::BuildKeepalive =>
             build_keepalive(),
-        Command::BuildAskstatus =>
+        CMD::BuildAskstatus =>
             build_askstatus(),
-        Command::BuildSetNodenum(val) =>
+        CMD::BuildSetNodenum(val) =>
             build_set_nodenum(val),
-        Command::BuildGeneralParameters(opcode, id, val) =>
-            build_general_parameters(opcode, id, val),
+        CMD::BuildGeneralParameters(opcode, id, val) =>
+            build_general_parameters(opcode, Some(id), val),
     };
     (frame_id, data)
 }
@@ -122,7 +116,6 @@ pub enum ReturnMessage {
 
 pub fn decode_recv_message(return_type: u32, data: [u8; 8]) -> Option<(u32, ReturnMessage)>
 {
-    // let (frame_type, node_id) = filter_frame_id(frame);
     let message = match return_type as u16
     {
         FAULT_DETAILS_FRAME_LOW =>
@@ -141,72 +134,72 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_command_code() {
-        let result = build_send_message(1, Command::BuildSpeed(10.0));
+    fn test_CMD_code() {
+        let result = build_msg(1, CMD::BuildSpeed(10.0));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x01, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(2, Command::BuildOpenloopVoltage(0.6));
+        let result = build_msg(2, CMD::BuildOpenloopVoltage(0.6));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x02, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(3, Command::BuildSwitchModels(Models::Openloop));
+        let result = build_msg(3, CMD::BuildSwitchModels(Models::Openloop));
         assert!(result.0 == 0x103);
         assert!(result.1 == [0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(4, Command::BuildSwitchModels(Models::IDLE));
+        let result = build_msg(4, CMD::BuildSwitchModels(Models::IDLE));
         assert!(result.0 == 0x104);
         assert!(result.1 == [0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(5, Command::BuildSetDirection(Direction::BackwardRotation));
+        let result = build_msg(5, CMD::BuildSetDirection(Direction::BackwardRotation));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(6, Command::BuildTorque(1.0));
+        let result = build_msg(6, CMD::BuildTorque(1.0));
         assert!(result.0 == 0x106);
         assert!(result.1 == [0x05, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(7, Command::BuildState(1.0));
+        let result = build_msg(7, CMD::BuildState(1.0));
         assert!(result.0 == 0x107);
         assert!(result.1 == [0x06, 0x10, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(8, Command::BuildKeepalive);
+        let result = build_msg(8, CMD::BuildKeepalive);
         assert!(result.0 == 0x108);
         assert!(result.1 == [0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(9, Command::BuildAskstatus);
+        let result = build_msg(9, CMD::BuildAskstatus);
         assert!(result.0 == 0x109);
         assert!(result.1 == [0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(10, Command::BuildSetNodenum(3));
+        let result = build_msg(10, CMD::BuildSetNodenum(3));
         assert!(result.0 == 0x10A);
         assert!(result.1 == [0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(11, Command::BuildGeneralParameters(Opcode::ReadEffectiveval, Some(ParamFaulfID::SpeedLoopKp), None));
+        let result = build_msg(11, CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, Some(ParamFaulfID::SpeedLoopKp), None));
         assert!(result.0 == 0x10B);
         assert!(result.1 == [0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(12, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(ParamFaulfID::SpeedLoopKp), Some(0.1)));
+        let result = build_msg(12, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::SpeedLoopKp), Some(0.1)));
         assert!(result.0 == 0x10C);
         assert!(result.1 == [0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_send_message(1, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(0.5)));
+        let result = build_msg(1, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(0.5)));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_send_message(2, Command::BuildGeneralParameters(Opcode::WriteTemporaryval, Some(ParamFaulfID::FeedforwardVelGain), Some(1.0)));
+        let result = build_msg(2, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::FeedforwardVelGain), Some(1.0)));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
-        let result = build_send_message(3, Command::BuildGeneralParameters(Opcode::SubmitEffectiveval, None, None));
+        let result = build_msg(3, CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, None, None));
         assert!(result.0 == 0x103);
         assert!(result.1 == [0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(4, Command::BuildGeneralParameters(Opcode::SaveEffectiveval, None, None));
+        let result = build_msg(4, CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, None, None));
         assert!(result.0 == 0x104);
         assert!(result.1 == [0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_send_message(5, Command::BuildGeneralParameters(Opcode::ResetDefault, None, None));
+        let result = build_msg(5, CMD::BuildGeneralParameters(ParamAction::ResetDefault, None, None));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     }

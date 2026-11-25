@@ -1,6 +1,6 @@
 use flow_driver;
 use std::{thread, time::Duration};
-use flow_driver::Command;
+use flow_driver::CMD;
 use flow_driver::{ParamOpcode};
 use std::sync::{Arc};
 use std::env;
@@ -18,18 +18,18 @@ fn main(){
     let motor1 = flow_driver::Motor::new(1, canbus1.clone());
     let motor2 = flow_driver::Motor::new(target_id, canbus1.clone());
 
-    motor1.build_and_send_message(Command::BuildSetNodenum(target_id as u8));
+    motor1.build_and_send_message(CMD::BuildSetNodenum(target_id as u8));
 
     thread::sleep(Duration::from_millis(30));
 
-    motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
+    motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::SubmitEffectiveval, None, None ));
     thread::sleep(Duration::from_millis(30));
 
-    motor2.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None ));
+    motor2.build_and_send_message(CMD::BuildGeneralParameters(ParamOpcode::SaveEffectiveval, None, None ));
 
     thread::sleep(Duration::from_secs(1));
 
-    motor2.build_and_send_message(Command::BuildAskstatus);
+    motor2.build_and_send_message(CMD::BuildAskstatus);
     thread::sleep(Duration::from_secs(1));
     motor2.rdp_msg();
     thread::sleep(Duration::from_secs(1));

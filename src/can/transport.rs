@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 
 use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Frame, Socket, StandardId};
 
-use crate::protocol::command::{Command, build_send_message, filter_frame_id};
+use crate::protocol::command::{CMD, build_msg, filter_frame_id};
 use crate::protocol::constants::AllFrameBasic;
 
 use super::constants::{ALIVE_TIMEOUT, INIT_ITER, RECV_TIMEOUT, SEND_TIMEOUT};
@@ -124,7 +124,7 @@ fn send_can_frame(
 }
 
 fn send_can_keepalive_frame(node_id: u32, socket: &mut CanSocket) {
-    let (id, msg) = build_send_message(node_id, Command::BuildKeepalive);
+    let (id, msg) = build_msg(node_id, CMD::BuildKeepalive);
     let can_frame = make_can_frame(id, &msg);
     if let Err(e) = socket.transmit(&can_frame) {
         eprint!("keepalive send error: {e}")
@@ -196,7 +196,7 @@ fn send_thread(
             Ok((id, data)) => {
                 let frame: CanFrame = make_can_frame(id, &data);
                 send_can_frame(&frame, socket1).unwrap();
-                let node_id = id.saturating_sub(AllFrameBasic::CommandFrame as u32);
+                let node_id = id.saturating_sub(AllFrameBasic::CMDFrame as u32);
                 if let Some(motor) = all_heartbeat_time
                     .iter_mut()
                     .find(|motor| motor.motor_id == node_id)

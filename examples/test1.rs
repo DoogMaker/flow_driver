@@ -1,6 +1,6 @@
 use flow_driver::{self, MotorMode::Openloop};
 use std::{thread, time::Duration};
-use flow_driver::Command;
+use flow_driver::CMD;
 use std::sync::{Arc};
 
 fn main(){
@@ -10,8 +10,8 @@ fn main(){
     let motor2 = flow_driver::Motor::new(2, canbus1.clone());
     // 配置总线 将电机挂在在总线上
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    motor2.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
+    motor2.build_and_send_message(CMD::BuildAskstatus);
     // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));
@@ -21,12 +21,12 @@ fn main(){
     motor2.rdp_msg();
     // 读取消息并打印
 
-    motor1.build_and_send_message(Command::BuildSwitchModels(Openloop));
-    motor2.build_and_send_message(Command::BuildSwitchModels(Openloop));
+    motor1.build_and_send_message(CMD::BuildSwitchModels(Openloop));
+    motor2.build_and_send_message(CMD::BuildSwitchModels(Openloop));
     // 切换为开环模式
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    motor2.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
+    motor2.build_and_send_message(CMD::BuildAskstatus);
     // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));
@@ -36,29 +36,29 @@ fn main(){
     motor2.rdp_msg();
     // 读取消息并打印
 
-    motor1.build_and_send_message(Command::BuildSpeed(6.0));
-    motor2.build_and_send_message(Command::BuildSpeed(6.0));
+    motor1.build_and_send_message(CMD::BuildSpeed(6.0));
+    motor2.build_and_send_message(CMD::BuildSpeed(6.0));
     // 设置速度为6 rad/s
 
-    motor1.build_and_send_message(Command::BuildOpenloopVoltage(1.0));
-    motor2.build_and_send_message(Command::BuildOpenloopVoltage(1.0));
+    motor1.build_and_send_message(CMD::BuildOpenloopVoltage(1.0));
+    motor2.build_and_send_message(CMD::BuildOpenloopVoltage(1.0));
     // 设置电压1 v 
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
 
-    motor1.build_and_send_message(Command::BuildSpeed(-6.0));
-    motor2.build_and_send_message(Command::BuildSpeed(-6.0));
+    motor1.build_and_send_message(CMD::BuildSpeed(-6.0));
+    motor2.build_and_send_message(CMD::BuildSpeed(-6.0));
     // 设置速度为-6 rad/s
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
-    motor1.build_and_send_message(Command::BuildOpenloopVoltage(0.0));
-    motor2.build_and_send_message(Command::BuildOpenloopVoltage(0.0));
+    motor1.build_and_send_message(CMD::BuildOpenloopVoltage(0.0));
+    motor2.build_and_send_message(CMD::BuildOpenloopVoltage(0.0));
     // 设置电压0 v
 
-    motor1.build_and_send_message(Command::BuildAskstatus);
-    motor2.build_and_send_message(Command::BuildAskstatus);
+    motor1.build_and_send_message(CMD::BuildAskstatus);
+    motor2.build_and_send_message(CMD::BuildAskstatus);
     // 询问当前模式
 
     thread::sleep(Duration::from_secs(1));

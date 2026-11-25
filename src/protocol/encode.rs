@@ -2,7 +2,7 @@ use super::constants::*;
 
 pub fn make_frame(node_id: u32) -> u32
 {
-    AllFrameBasic::CommandFrame as u32 + node_id as u32
+    AllFrameBasic::CMDFrame as u32 + node_id as u32
 }
 
 pub fn build_speed(val: f32) -> [u8; 8]
@@ -10,7 +10,7 @@ pub fn build_speed(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let speed: i16 = (val * TARGETSPEED).round() as i16;
 
-    data[0] = EncodeCommand::TargetSpeed as u8;
+    data[0] = EncodeCMD::TargetSpeed as u8;
     data[1..3].copy_from_slice(&speed.to_le_bytes());
     data
 }
@@ -20,7 +20,7 @@ pub fn build_openloop_voltage(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let voltage: i16 = (val * OPENLOOPVOLTAGE).round() as i16;
 
-    data[0] = EncodeCommand::OpenloopVoltage as u8;
+    data[0] = EncodeCMD::OpenloopVoltage as u8;
     data[1..3].copy_from_slice(&voltage.to_le_bytes());
     data
 }
@@ -28,7 +28,7 @@ pub fn build_openloop_voltage(val: f32) -> [u8; 8]
 pub fn build_switch_models(model: Models) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::SwitchModels as u8;
+    data[0] = EncodeCMD::SwitchModels as u8;
     data[1] = model as u8;
     data
 }
@@ -36,7 +36,7 @@ pub fn build_switch_models(model: Models) -> [u8; 8]
 pub fn build_set_direction(direction: Direction) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::SetDirection as u8;
+    data[0] = EncodeCMD::SetDirection as u8;
     data[1] = direction as u8;
     data
 }
@@ -46,7 +46,7 @@ pub fn build_torque(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let torque: i16 = (val * TARGETTORQUE).round() as i16;
 
-    data[0] = EncodeCommand::TargetTorque as u8;
+    data[0] = EncodeCMD::TargetTorque as u8;
     data[1..3].copy_from_slice(&torque.to_le_bytes());
     data
 }
@@ -56,7 +56,7 @@ pub fn build_state(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let state: i32 = (val * TARGETSTATE).round() as i32;
 
-    data[0] = EncodeCommand::TargetState as u8;
+    data[0] = EncodeCMD::TargetState as u8;
     data[1..5].copy_from_slice(&state.to_le_bytes());
     data
 }
@@ -64,21 +64,21 @@ pub fn build_state(val: f32) -> [u8; 8]
 pub fn build_keepalive() -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::KeepAlive as u8;
+    data[0] = EncodeCMD::KeepAlive as u8;
     data
 }
 
 pub fn build_askstatus() -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::AskStatusFeedback as u8;
+    data[0] = EncodeCMD::AskStatusFeedback as u8;
     data
 }
 
 pub fn build_set_nodenum(node_number: u8) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::SetNodeNumber as u8;
+    data[0] = EncodeCMD::SetNodeNumber as u8;
     data[1] = node_number;
     data
 }
@@ -90,7 +90,7 @@ pub fn build_general_parameters(
 ) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::GeneralParameters as u8;
+    data[0] = EncodeCMD::GeneralParameters as u8;
     data[1] = byte1 as u8;
 
     if let Some(parameter) = byte23
