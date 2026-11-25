@@ -42,7 +42,7 @@ fn main(){
 
     motor1.build_and_send_message(CMD::BuildOpenloopVoltage(1.0));
     motor2.build_and_send_message(CMD::BuildOpenloopVoltage(1.0));
-    // 设置电压1 v 
+    // 设置电压1 v
 
     thread::sleep(Duration::from_secs(2));
     // 主线程阻塞2s
