@@ -1,7 +1,7 @@
 use std::{sync::Arc, thread, time::Duration};
 // use std::{thread, time::Duration};
 
-use flow_driver::{CanBus, Command, Motor, ParamOpcode, ParamId};
+use flow_driver::{CanBus, CMD, Motor, ParamAction, ParamFaulfID};
 
 fn main() {
     let canbus1 = Arc::new(CanBus::canbus_init(2, 2, "can1".to_string()));
@@ -9,6 +9,7 @@ fn main() {
 
     //   EncoderOffset = 0x0308,
     //   EncoderDirection = 0x0309,
+<<<<<<< HEAD
     //  0x0117 0.1 PositionErrorThreshold
     //  0x010A 5 PoseloopKi
     //  0x010D 0.005 FeedforwardInertia
@@ -23,7 +24,7 @@ fn main() {
     // motor1.rdp_msg();
     // println!("0308 is right");
 
-    // motor1.build_and_send_message(Command::BuildGeneralParameters(ParamOpcode::ReadEffectiveval, Some(ParamId::EncoderDirection), None ));
+    // motor1.build_and_send_message(CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, Some(ParamFaulfID::EncoderDirection), None ));
     // thread::sleep(Duration::from_secs(1));
     // motor1.rdp_msg();
     // println!("0309 is right");
@@ -36,4 +37,4 @@ fn main() {
     motor1.rdp_msg();
 
 
-}    
+}

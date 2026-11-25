@@ -1,6 +1,7 @@
 use std::sync::{Arc};
 use crate::can::transport::{CanBus, MotorMsg};
-use crate::protocol::command::{self, ReturnMessage};
+use crate::protocol::command::{ReturnMessage};
+use crate::protocol::command;
 use crate::protocol::constants::AllFrameBasic;
 use crate::motor_move::move_method;
 use std::time::{self, Duration};
@@ -12,7 +13,9 @@ use std::sync::atomic::{AtomicBool, Ordering};
 /// id: motor id
 /// can_bus: can bus
 pub struct Motor {
+    ///
     pub id: u32,
+    ///
     pub can_bus: Arc<CanBus>,
 }
 
@@ -28,10 +31,10 @@ impl Motor {
     }
 
     /// build send_messages
-    /// input cmd: command
+    /// input CMD: CMD
     /// return: (id, data)
-    pub fn build_message(&self, cmd: command::Command) -> (u32, [u8; 8]) {
-        let (id, data) = command::build_send_message(self.id, cmd);
+    pub fn build_message(&self, cmd: command::CMD) -> (u32, [u8; 8]) {
+        let (id, data) = command::build_msg(self.id, cmd);
         (id, data)
     }
 
@@ -43,16 +46,20 @@ impl Motor {
 
     /// build and send send_msg
     /// include build_message and send_messages
-    /// input cmd: command
-    pub fn build_and_send_message(&self, cmd: command::Command) {
+    /// input CMD: CMD
+    pub fn build_and_send_message(&self, cmd: command::CMD) {
         let data = self.build_message(cmd);
         self.send_messages(data);
     }
 
     /// receive and decode and print msg
     pub fn rdp_msg(&self) {
-        if let Some(msg) = self.recv_msg() {
-            self.decode_msg(msg.0, msg.1);
+        loop {
+            if let Some(msg) = self.recv_msg() {
+                self.decode_msg(msg.0, msg.1);
+            } else {
+                break;
+            }
         }
     }
 
@@ -96,10 +103,10 @@ impl Motor {
     }
 
 
-
+    ///============================================================================================
     ///get now rad
     pub fn get_rad(&self) -> Option<f32> {
-        self.build_and_send_message(command::Command::BuildAskstatus);
+        self.build_and_send_message(command::CMD::BuildAskstatus);
 
         thread::sleep(Duration::from_secs_f32(0.1));
 
@@ -161,7 +168,7 @@ impl Motor {
     for (&t, &rad) in time.iter().zip(position.iter()) {
         let deadline = start_time + time::Duration::from_secs_f64(t);
         thread::sleep(deadline.saturating_duration_since(time::Instant::now()));
-        self.build_and_send_message(command::Command::BuildState(rad as f32));
+        self.build_and_send_message(command::CMD::BuildState(rad as f32));
     }
 
     Ok(())
@@ -169,8 +176,11 @@ impl Motor {
 
 }
 
+///
 pub struct Motorss {
+    /// id
     pub id_s: [Motor; 12],
+    /// now rad
     pub now_r: Arc<Mutex<[f64; 12]>>,
     // pub now_w: Arc<Mutex<[f64; 12]>>,
     running: Arc<AtomicBool>,
@@ -179,6 +189,7 @@ pub struct Motorss {
 }
 
 impl Motorss {
+    ///
     pub fn Motorss_init() -> Self{
         let canbus1 = Arc::new(CanBus::canbus_init(1, 6, "can0".to_string()));
         let canbus2 = Arc::new(CanBus::canbus_init(7, 12, "can1".to_string()));

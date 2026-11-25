@@ -10,14 +10,14 @@ pub const CURRENT_A: f32 = 100.0;
 
 #[repr(u16)]
 pub enum AllFrameBasic {
-    CommandFrame = 0x100,
+    CMDFrame = 0x100,
     StatusFeedbackFrame = 0x200,
     FaultDetailsFrame = 0x300,
     ParameterResponseFrame = 0x400,
 }
 
 #[repr(u8)]
-pub enum EncodeCommand {
+pub enum EncodeCMD {
     TargetSpeed = 0x01,
     OpenloopVoltage = 0x02,
     SwitchModels = 0x03,
@@ -33,8 +33,16 @@ pub enum EncodeCommand {
 /// All models in thie enum
 #[repr_cast(u8)]
 #[derive(Debug)]
-pub enum SwitchModelsByte1 {
+pub enum Models {
+    ///IDLE
+    /// OPEMLOOP
+    /// ALIGN
+    /// TORGUE
+    /// SPEED
+    /// POSSITION
+    /// FAULT
     /// default model
+    
     IDLE = 0x00,
     /// openloop model
     Openloop = 0x01,
@@ -52,7 +60,7 @@ pub enum SwitchModelsByte1 {
 
 /// Set Direction
 #[repr(u8)]
-pub enum SetDirectionByte1 {
+pub enum Direction {
     ///
     ForwardRotation = 0x00,
     ///
@@ -61,7 +69,7 @@ pub enum SetDirectionByte1 {
 
 /// General Parameters
 #[repr(u8)]
-pub enum GeneralParametersByte1 {
+pub enum ParamAction {
     /// read effective value
     ReadEffectiveval = 0x00,
     /// read temporary value
@@ -79,7 +87,7 @@ pub enum GeneralParametersByte1 {
 #[allow(missing_docs)]
 #[repr_cast(u16)]
 #[derive(Debug)]
-pub enum GeneralParametersByte23 {
+pub enum ParamFaulfID {
     None = 0x0000,
     //0x01
     SpeedLoopKp = 0x0100,
@@ -182,7 +190,7 @@ pub enum GeneralParametersByte23 {
 
 #[repr_cast(u8)]
 #[derive(Debug)]
-pub enum StatusFeedbackByte0 {
+pub enum FeedBackStatus {
     IDLE = 0x00,
     Running = 0x01,
     Fault = 0x02,
@@ -192,11 +200,11 @@ pub enum StatusFeedbackByte0 {
 // pub const PHASEACURRENT: f32 = 100.0;
 pub const RAD: f32 = 10000.0;
 
-pub type StatusFeedbackByte5 = SwitchModelsByte1;
+// pub type StatusFeedbackByte5 = Models;
 
 #[repr_cast(u8)]
 #[derive(Debug)]
-pub enum FaultDetailsByte0 {
+pub enum FaultCode {
     None = 0x00,
     HARDWARE = 0x01,
     STALL = 0x02,
@@ -220,7 +228,7 @@ pub enum FaultDetailsByte1 {
 
 bitflags! {
     #[derive(Debug)]
-    pub struct FaultDetailsByte23: u16
+    pub struct FaultMaskCode: u16
     {
         const HARDWARE        = 0x0002;
         const STALL           = 0x0004;
@@ -237,7 +245,7 @@ bitflags! {
     }
 
     #[derive(Debug)]
-    pub struct FaultDetailsByte45: u16
+    pub struct Drv8353Status1: u16
     {
         const NONE     = 0x0000;
         const VDSLC   = 0x0001;
@@ -253,7 +261,7 @@ bitflags! {
         const FAULT    = 0x0400;
     }
     #[derive(Debug)]
-    pub struct FaultDetailsByte67: u16
+    pub struct Drv8353Status2: u16
     {
         const NONE     = 0x0000;
         const VGSLC   = 0x0001;
@@ -289,7 +297,7 @@ pub enum ParameterResponseByte0 {
 pub enum ParameterResponseByte1 {
     SUCCESS = 0x00,
     INVALIDPARAM = 0x01,
-    UNKNOWNPARAMID = 0x02,
+    UNKNOWNParamFaulfID = 0x02,
     NOPERMISSION = 0x03,
     TYPEUNAVAILABLE = 0x04,
     VALUEOUTOFRANGE = 0x05,
@@ -301,7 +309,7 @@ pub enum ParameterResponseByte1 {
     APPLYREADBACKMISMATCH = 0x0B,
 }
 
-pub type ParameterResponseByte23 = GeneralParametersByte23;
+pub type ParameterResponseByte23 = ParamFaulfID;
 
 #[repr_cast(u32)]
 #[derive(Debug)]

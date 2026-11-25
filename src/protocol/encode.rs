@@ -1,14 +1,8 @@
-use core::panic;
 use super::constants::*;
-// use repr_cast::repr_cast;
 
-pub fn command_frame_id(node_id: u32) -> u32
+pub fn make_frame(node_id: u32) -> u32
 {
-    if node_id > MAX_NODE_NUMBER
-    {
-        panic!("node_id must be less than 12");
-    }
-    AllFrameBasic::CommandFrame as u32 + node_id as u32
+    AllFrameBasic::CMDFrame as u32 + node_id as u32
 }
 
 pub fn build_speed(val: f32) -> [u8; 8]
@@ -16,7 +10,7 @@ pub fn build_speed(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let speed: i16 = (val * TARGETSPEED).round() as i16;
 
-    data[0] = EncodeCommand::TargetSpeed as u8;
+    data[0] = EncodeCMD::TargetSpeed as u8;
     data[1..3].copy_from_slice(&speed.to_le_bytes());
     data
 }
@@ -26,23 +20,23 @@ pub fn build_openloop_voltage(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let voltage: i16 = (val * OPENLOOPVOLTAGE).round() as i16;
 
-    data[0] = EncodeCommand::OpenloopVoltage as u8;
+    data[0] = EncodeCMD::OpenloopVoltage as u8;
     data[1..3].copy_from_slice(&voltage.to_le_bytes());
     data
 }
 
-pub fn build_switch_models(model: SwitchModelsByte1) -> [u8; 8]
+pub fn build_switch_models(model: Models) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::SwitchModels as u8;
+    data[0] = EncodeCMD::SwitchModels as u8;
     data[1] = model as u8;
     data
 }
 
-pub fn build_set_direction(direction: SetDirectionByte1) -> [u8; 8]
+pub fn build_set_direction(direction: Direction) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::SetDirection as u8;
+    data[0] = EncodeCMD::SetDirection as u8;
     data[1] = direction as u8;
     data
 }
@@ -52,7 +46,7 @@ pub fn build_torque(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let torque: i16 = (val * TARGETTORQUE).round() as i16;
 
-    data[0] = EncodeCommand::TargetTorque as u8;
+    data[0] = EncodeCMD::TargetTorque as u8;
     data[1..3].copy_from_slice(&torque.to_le_bytes());
     data
 }
@@ -62,7 +56,7 @@ pub fn build_state(val: f32) -> [u8; 8]
     let mut data: [u8; 8] = [0u8; 8];
     let state: i32 = (val * TARGETSTATE).round() as i32;
 
-    data[0] = EncodeCommand::TargetState as u8;
+    data[0] = EncodeCMD::TargetState as u8;
     data[1..5].copy_from_slice(&state.to_le_bytes());
     data
 }
@@ -70,33 +64,33 @@ pub fn build_state(val: f32) -> [u8; 8]
 pub fn build_keepalive() -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::KeepAlive as u8;
+    data[0] = EncodeCMD::KeepAlive as u8;
     data
 }
 
 pub fn build_askstatus() -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::AskStatusFeedback as u8;
+    data[0] = EncodeCMD::AskStatusFeedback as u8;
     data
 }
 
 pub fn build_set_nodenum(node_number: u8) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::SetNodeNumber as u8;
+    data[0] = EncodeCMD::SetNodeNumber as u8;
     data[1] = node_number;
     data
 }
 
 pub fn build_general_parameters(
-    byte1: GeneralParametersByte1,
-    byte23: Option<GeneralParametersByte23>,
+    byte1: ParamAction,
+    byte23: Option<ParamFaulfID>,
     val: Option<f32>
 ) -> [u8; 8]
 {
     let mut data: [u8; 8] = [0u8; 8];
-    data[0] = EncodeCommand::GeneralParameters as u8;
+    data[0] = EncodeCMD::GeneralParameters as u8;
     data[1] = byte1 as u8;
 
     if let Some(parameter) = byte23
@@ -119,21 +113,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_command_frame_id() {
+    fn test_make_frame() {
 
-        let result: u32 = command_frame_id(1);
+        let result: u32 = make_frame(1);
         assert_eq!(result, 0x101);
 
-        let result: u32 = command_frame_id(2);
+        let result: u32 = make_frame(2);
         assert_eq!(result, 0x102);
 
-        let result: u32 = command_frame_id(3);
+        let result: u32 = make_frame(3);
         assert_eq!(result, 0x103);
 
-        let result: u32 = command_frame_id(4);
+        let result: u32 = make_frame(4);
         assert_eq!(result, 0x104);
 
-        let result: u32 = command_frame_id(5);
+        let result: u32 = make_frame(5);
         assert_eq!(result, 0x105);
     }
 
@@ -145,13 +139,13 @@ mod tests {
         let result = build_openloop_voltage(0.6);
         assert!(result.to_vec() == vec![0x02, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_switch_models(SwitchModelsByte1::Openloop);
+        let result = build_switch_models(Models::Openloop);
         assert!(result.to_vec() == vec![0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_switch_models(SwitchModelsByte1::IDLE);
+        let result = build_switch_models(Models::IDLE);
         assert!(result.to_vec() == vec![0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_set_direction(SetDirectionByte1::BackwardRotation);
+        let result = build_set_direction(Direction::BackwardRotation);
         assert!(result.to_vec() == vec![0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
         let result = build_torque(1.0);
@@ -169,25 +163,25 @@ mod tests {
         let result = build_set_nodenum(3);
         assert!(result.to_vec() == vec![0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_general_parameters(GeneralParametersByte1::ReadEffectiveval, Some(GeneralParametersByte23::SpeedLoopKp), None);
+        let result = build_general_parameters(ParamAction::ReadEffectiveval, Some(ParamFaulfID::SpeedLoopKp), None);
         assert!(result.to_vec() == vec![0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_general_parameters(GeneralParametersByte1::WriteTemporaryval, Some(GeneralParametersByte23::SpeedLoopKp), Some(0.1));
+        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::SpeedLoopKp), Some(0.1));
         assert!(result.to_vec() == vec![0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_general_parameters(GeneralParametersByte1::WriteTemporaryval, Some(GeneralParametersByte23::PoseloopKp), Some(0.5));
+        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(0.5));
         assert!(result.to_vec() == vec![0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_general_parameters(GeneralParametersByte1::WriteTemporaryval, Some(GeneralParametersByte23::FeedforwardVelGain), Some(1.0));
+        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::FeedforwardVelGain), Some(1.0));
         assert!(result.to_vec() == vec![0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
-        let result = build_general_parameters(GeneralParametersByte1::SubmitEffectiveval, None, None);
+        let result = build_general_parameters(ParamAction::SubmitEffectiveval, None, None);
         assert!(result.to_vec() == vec![0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_general_parameters(GeneralParametersByte1::SaveEffectiveval, None, None);
+        let result = build_general_parameters(ParamAction::SaveEffectiveval, None, None);
         assert!(result.to_vec() == vec![0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_general_parameters(GeneralParametersByte1::ResetDefault, None, None);
+        let result = build_general_parameters(ParamAction::ResetDefault, None, None);
         assert!(result.to_vec() == vec![0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     }
 }

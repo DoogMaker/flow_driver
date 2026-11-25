@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 use flow_driver::{self, MotorMode::{Openloop, Position}};
+=======
+use flow_driver::{self, Models::Openloop};
+>>>>>>> feature/0.2.0
 use std::{thread, time::Duration};
-use flow_driver::Command;
+use flow_driver::CMD;
 use std::sync::{Arc};
 
 fn main(){
@@ -10,6 +14,7 @@ fn main(){
     // 配置总线 将电机挂在在总线上
 
     motor1.build_and_send_message(Command::BuildAskstatus);
+
     thread::sleep(Duration::from_secs(1));
     motor1.rdp_msg();
 

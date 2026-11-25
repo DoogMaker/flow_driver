@@ -1,11 +1,11 @@
-use flow_driver::MotorMode::Position;
+use flow_driver::Models;
 use flow_driver::motor::driver::Motorss;
 use std::sync::Arc;
 use std::{
     thread::{self},
     time::Duration,
 };
-use flow_driver::{CanBus, Command, Motor, ParamOpcode, ParamId};
+use flow_driver::{CMD, ParamAction, ParamFaulfID};
 
 const TIMEOUT: u64 = 3;
 const LAY: [f32; 12] = [
@@ -90,43 +90,43 @@ fn main() {
     let mut target_rad: [f32; 12] = allrads.make_all_rad();
 
     for i in motors.id_s.iter() {
-        i.build_and_send_message(Command::BuildSwitchModels(Position));
+        i.build_and_send_message(CMD::BuildSwitchModels(Models::Position));
     }
     thread::sleep(Duration::from_secs(1));
 
     target_rad = STAND;
     for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(Command::BuildState(target_rad[index]));
+        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = LAY;
     for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(Command::BuildState(target_rad[index]));
+        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = STAND;
     for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(Command::BuildState(target_rad[index]));
+        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = SIT;
     for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(Command::BuildState(target_rad[index]));
+        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = STAND;
     for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(Command::BuildState(target_rad[index]));
+        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
 
     target_rad = LAY;
     for (index, motorr) in motors.id_s.iter().enumerate() {
-        motorr.build_and_send_message(Command::BuildState(target_rad[index]));
+        motorr.build_and_send_message(CMD::BuildState(target_rad[index]));
     }
     thread::sleep(Duration::from_secs(TIMEOUT));
 
