@@ -5,7 +5,6 @@ mod can;
 ///
 pub mod motor;
 mod protocol;
-mod motor_move;
 
 pub use can::transport::CanBus;
 pub use motor::driver::Motor;

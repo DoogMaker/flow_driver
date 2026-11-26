@@ -106,7 +106,7 @@ struct MotorTimers {
     interval: Duration,
 }
 
-fn make_can_frame(id: u32, data: &[u8; 8]) -> CanFrame {
+pub(crate) fn make_can_frame(id: u32, data: &[u8; 8]) -> CanFrame {
     let std_id = StandardId::new(id as u16).unwrap();
     let can_frame = CanFrame::new(std_id, data).unwrap();
     can_frame
@@ -173,11 +173,13 @@ fn send_thread(
         .collect();
 
     loop {
+        // check stop_flags
         if stop_flags.load(Ordering::SeqCst) {
             break;
         }
         thread::sleep(SEND_TIMEOUT);
 
+        // get min timeout motor's id
         let min_id_and_timeout = all_heartbeat_time
             .iter()
             .map(|timer| {
@@ -204,9 +206,7 @@ fn send_thread(
                     motor.heartbeat_time = Instant::now();
                 }
             }
-
             Err(RecvTimeoutError::Timeout) => {}
-
             Err(RecvTimeoutError::Disconnected) => {
                 break;
             }
