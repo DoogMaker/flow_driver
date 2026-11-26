@@ -85,7 +85,7 @@ pub fn build_set_nodenum(node_number: u8) -> [u8; 8]
 
 pub fn build_general_parameters(
     byte1: ParamAction,
-    byte23: Option<ParamFaulfID>,
+    byte23: Option<ParamFaultID>,
     val: Option<f32>
 ) -> [u8; 8]
 {
@@ -101,7 +101,7 @@ pub fn build_general_parameters(
     if let Some(val1) = val
     {
         data[4..8].copy_from_slice(&val1.to_le_bytes());
-    } 
+    }
 
     data
 }
@@ -132,7 +132,7 @@ mod tests {
     }
 
     #[test]
-    fn test_buld_send_code() {
+    fn test_build_send_code() {
         let result = build_speed(10.0);
         assert!(result.to_vec() == vec![0x01, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
@@ -163,16 +163,16 @@ mod tests {
         let result = build_set_nodenum(3);
         assert!(result.to_vec() == vec![0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_general_parameters(ParamAction::ReadEffectiveval, Some(ParamFaulfID::SpeedLoopKp), None);
+        let result = build_general_parameters(ParamAction::ReadEffectiveval, Some(ParamFaultID::SpeedLoopKp), None);
         assert!(result.to_vec() == vec![0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::SpeedLoopKp), Some(0.1));
+        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaultID::SpeedLoopKp), Some(0.1));
         assert!(result.to_vec() == vec![0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::PoseloopKp), Some(0.5));
+        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaultID::PoseloopKp), Some(0.5));
         assert!(result.to_vec() == vec![0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaulfID::FeedforwardVelGain), Some(1.0));
+        let result = build_general_parameters(ParamAction::WriteTemporaryval, Some(ParamFaultID::FeedforwardVelGain), Some(1.0));
         assert!(result.to_vec() == vec![0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
         let result = build_general_parameters(ParamAction::SubmitEffectiveval, None, None);

@@ -2,13 +2,13 @@ use super::constants::*;
 use super::decode::*;
 use super::encode::*;
 pub(crate) const STATUS_FEEDBACK_FRAME_LOW: u16 = AllFrameBasic::StatusFeedbackFrame as u16;
-pub(crate) const STATUS_FEEDBACK_FRAME_HEIGH: u16 = STATUS_FEEDBACK_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) const STATUS_FEEDBACK_FRAME_HIGH: u16 = STATUS_FEEDBACK_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
 pub(crate) const FAULT_DETAILS_FRAME_LOW: u16 = AllFrameBasic::FaultDetailsFrame as u16;
-pub(crate) const FAULT_DETAILS_FRAME_HEIGH: u16 = FAULT_DETAILS_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) const FAULT_DETAILS_FRAME_HIGH: u16 = FAULT_DETAILS_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
 pub(crate) const PARAMETER_RESPONSE_FRAME_LOW: u16 = AllFrameBasic::ParameterResponseFrame as u16;
-pub(crate) const PARAMETER_RESPONSE_FRAME_HEIGH: u16 = PARAMETER_RESPONSE_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
+pub(crate) const PARAMETER_RESPONSE_FRAME_HIGH: u16 = PARAMETER_RESPONSE_FRAME_LOW + MAX_NODE_NUMBER as u16 + 1;
 
 /// CMD
 pub enum CMD
@@ -34,7 +34,7 @@ pub enum CMD
     /// build general parameters
     BuildGeneralParameters(
         ParamAction,
-        ParamFaulfID,
+        ParamFaultID,
         Option<f32>),
 }
 
@@ -71,15 +71,15 @@ pub fn filter_frame_id(frame: u16) -> (u16, u16)
 {
     let (result, node_id) = match frame
     {
-        STATUS_FEEDBACK_FRAME_LOW..STATUS_FEEDBACK_FRAME_HEIGH =>
+        STATUS_FEEDBACK_FRAME_LOW..STATUS_FEEDBACK_FRAME_HIGH =>
             (STATUS_FEEDBACK_FRAME_LOW, frame - STATUS_FEEDBACK_FRAME_LOW),
 
-        FAULT_DETAILS_FRAME_LOW..FAULT_DETAILS_FRAME_HEIGH =>
+        FAULT_DETAILS_FRAME_LOW..FAULT_DETAILS_FRAME_HIGH =>
             (FAULT_DETAILS_FRAME_LOW, frame - FAULT_DETAILS_FRAME_LOW),
 
-        PARAMETER_RESPONSE_FRAME_LOW..PARAMETER_RESPONSE_FRAME_HEIGH =>
+        PARAMETER_RESPONSE_FRAME_LOW..PARAMETER_RESPONSE_FRAME_HIGH =>
             (PARAMETER_RESPONSE_FRAME_LOW, frame - PARAMETER_RESPONSE_FRAME_LOW),
-        
+
         _ => (0, 0),
     };
     (result, node_id)
@@ -175,31 +175,31 @@ mod tests {
         assert!(result.0 == 0x10A);
         assert!(result.1 == [0x09, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(11, CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaulfID::SpeedLoopKp, None));
+        let result = build_msg(11, CMD::BuildGeneralParameters(ParamAction::ReadEffectiveval, ParamFaultID::SpeedLoopKp, None));
         assert!(result.0 == 0x10B);
         assert!(result.1 == [0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(12, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::SpeedLoopKp, Some(0.1)));
+        let result = build_msg(12, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaultID::SpeedLoopKp, Some(0.1)));
         assert!(result.0 == 0x10C);
         assert!(result.1 == [0x0A, 0x02, 0x00, 0x01, 0xCD, 0xCC, 0xCC, 0x3D]);
 
-        let result = build_msg(1, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::PoseloopKp, Some(0.5)));
+        let result = build_msg(1, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaultID::PoseloopKp, Some(0.5)));
         assert!(result.0 == 0x101);
         assert!(result.1 == [0x0A, 0x02, 0x09, 0x01, 0x00, 0x00, 0x00, 0x3F]);
 
-        let result = build_msg(2, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaulfID::FeedforwardVelGain, Some(1.0)));
+        let result = build_msg(2, CMD::BuildGeneralParameters(ParamAction::WriteTemporaryval, ParamFaultID::FeedforwardVelGain, Some(1.0)));
         assert!(result.0 == 0x102);
         assert!(result.1 == [0x0A, 0x02, 0x0C, 0x01, 0x00, 0x00, 0x80, 0x3F]);
 
-        let result = build_msg(3, CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaulfID::None, None));
+        let result = build_msg(3, CMD::BuildGeneralParameters(ParamAction::SubmitEffectiveval, ParamFaultID::None, None));
         assert!(result.0 == 0x103);
         assert!(result.1 == [0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(4, CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaulfID::None, None));
+        let result = build_msg(4, CMD::BuildGeneralParameters(ParamAction::SaveEffectiveval, ParamFaultID::None, None));
         assert!(result.0 == 0x104);
         assert!(result.1 == [0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 
-        let result = build_msg(5, CMD::BuildGeneralParameters(ParamAction::ResetDefault, ParamFaulfID::None, None));
+        let result = build_msg(5, CMD::BuildGeneralParameters(ParamAction::ResetDefault, ParamFaultID::None, None));
         assert!(result.0 == 0x105);
         assert!(result.1 == [0x0A, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     }

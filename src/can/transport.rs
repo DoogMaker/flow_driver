@@ -160,7 +160,7 @@ fn send_thread(
     stop_flags: Arc<AtomicBool>,
 ) {
     // set keepalive timeout and init motor start time
-    // make differt motor has dirrerent init start time
+    // make different motor has dirrerent init start time
     let alive_timeout: Duration = Duration::from_millis(ALIVE_TIMEOUT);
     let base_time_start: Instant = Instant::now();
 

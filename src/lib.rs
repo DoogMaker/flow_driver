@@ -20,7 +20,7 @@ pub use protocol::constants::{
     Models,
     Direction,
     ParamAction,
-    ParamFaulfID,
+    ParamFaultID,
 };
 
 // 输出类型：让外部能拿到结构化反馈

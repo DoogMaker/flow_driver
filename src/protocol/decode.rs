@@ -53,8 +53,8 @@ pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 /// fault details frame
 #[derive(Debug)]
 pub struct FaultDetailsFrame
-{   
-    /// falt code
+{
+    /// fault code
     pub fault_code: FaultCode,
     /// fault details
     pub fault_mask_code: FaultMaskCode,
@@ -164,7 +164,7 @@ pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
                     ),
                 ParameterResponseByte1::APPLYREADBACKMISMATCH =>
                     ParameterResponseFrameVal::ParameterResponseByte47(
-                        ParameterResponseByte47::FaildNoWrite
+                        ParameterResponseByte47::FailedNoWrite
                     ),
                 _ => ParameterResponseFrameVal::RawBytes([data[4],data[5],data[6],data[7]]),
             }
@@ -186,7 +186,7 @@ pub fn parameter_response_frame(data: &[u8]) -> Option<ParameterResponseFrame>
         _ => ParameterResponseFrameVal::RawBytes([data[4],data[5],data[6],data[7]]),
 
 
-            
+
     };
 
     Some(ParameterResponseFrame {

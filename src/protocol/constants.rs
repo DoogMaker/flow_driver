@@ -30,19 +30,19 @@ pub enum EncodeCMD {
     GeneralParameters = 0x0A,
 }
 
-/// All models in thie enum
+/// All models in this enum
 #[repr_cast(u8)]
 #[derive(Debug)]
 pub enum Models {
     ///IDLE
-    /// OPEMLOOP
+    /// OPENLOOP
     /// ALIGN
     /// TORGUE
     /// SPEED
     /// POSSITION
     /// FAULT
     /// default model
-    
+
     IDLE = 0x00,
     /// openloop model
     Openloop = 0x01,
@@ -52,7 +52,7 @@ pub enum Models {
     Torque = 0x03,
     /// speed model
     Speed = 0x04,
-    /// postition model
+    /// position model
     Position = 0x05,
     /// err model
     Fault = 0x06,
@@ -87,7 +87,7 @@ pub enum ParamAction {
 #[allow(missing_docs)]
 #[repr_cast(u16)]
 #[derive(Debug)]
-pub enum ParamFaulfID {
+pub enum ParamFaultID {
     None = 0x0000,
     //0x01
     SpeedLoopKp = 0x0100,
@@ -136,7 +136,7 @@ pub enum ParamFaulfID {
     EncoderAngle = 0x0120,
     EncoderVelocityFilterCoefficients = 0x0121,
     OutputAngle = 0x0122,
-    OutputVelcotiyfilterCoefficients = 0x0123,
+    OutputVelocityFilterCoefficients = 0x0123,
     // F32 0~1 0~5 0.001~1 0.001~1 0.001~1 0.001~1
 
     //0x02
@@ -297,7 +297,7 @@ pub enum ParameterResponseByte0 {
 pub enum ParameterResponseByte1 {
     SUCCESS = 0x00,
     INVALIDPARAM = 0x01,
-    UNKNOWNParamFaulfID = 0x02,
+    UNKNOWNParamFaultID = 0x02,
     NOPERMISSION = 0x03,
     TYPEUNAVAILABLE = 0x04,
     VALUEOUTOFRANGE = 0x05,
@@ -309,12 +309,12 @@ pub enum ParameterResponseByte1 {
     APPLYREADBACKMISMATCH = 0x0B,
 }
 
-pub type ParameterResponseByte23 = ParamFaulfID;
+pub type ParameterResponseByte23 = ParamFaultID;
 
 #[repr_cast(u32)]
 #[derive(Debug)]
 pub enum ParameterResponseByte47 {
-    FaildNoWrite = 0x0000,
+    FailedNoWrite = 0x0000,
 }
 
 bitflags! {
