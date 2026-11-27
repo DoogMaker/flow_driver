@@ -143,7 +143,7 @@ fn send_askstatus_canframe(node_id: u32, socket: &mut CanSocket) {
     let (id, msg) = build_msg(node_id, CMD::BuildAskstatus);
     let can_frame = make_can_frame(id, &msg);
     if let Err(e) = socket.transmit(&can_frame) {
-        eprint!("keepalive send error: {e}")
+        eprint!("ask status send error: {e}")
     }
 }
 //=====================================
