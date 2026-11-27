@@ -22,7 +22,6 @@ impl Motor {
         Self {
             id,
             can_bus: Arc::clone(&bus),
-            now_status: Arc::
         }
     }
 
@@ -102,5 +101,15 @@ impl Motor {
         } else {
             println!("decode Err");
         };
+    }
+
+    /// get motor's now rad
+    /// return rad f32
+    pub fn read_rad(&self) -> f32{
+        let mut now_status = self.can_bus.now_status.lock().unwrap();
+        now_status.iter_mut()
+            .find(|x| x.id == self.id )
+            .map(|x| x.status.rad)
+            .unwrap()
     }
 }

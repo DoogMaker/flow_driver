@@ -19,7 +19,7 @@ pub struct StatusFeedbackFrame
 
 /// Right -> StatusFeedbackFrame
 /// Err -> None and Warning
-pub fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
+pub(crate) fn status_feedback_frame(data: &[u8]) -> Option<StatusFeedbackFrame>
 {
     if data.len() < 8 {
         println!("data length must be 8");

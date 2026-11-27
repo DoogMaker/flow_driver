@@ -10,6 +10,8 @@ use crate::protocol::command::{CMD, build_msg, filter_frame_id};
 use crate::protocol::constants::AllFrameBasic;
 use super::constants::{ALIVE_TIMEOUT, INIT_ITER, RECV_TIMEOUT, SEND_TIMEOUT};
 use crate::StatusFeedbackFrame;
+use crate::protocol::constants::{self, Models, FeedBackStatus};
+use crate::protocol::decode::status_feedback_frame;
 
 /// can bus class
 pub struct CanBus {
@@ -17,7 +19,7 @@ pub struct CanBus {
     pub send_tx: SyncSender<(u32, [u8; 8])>,
     /// classed_msgs: recv thread to main thread
     pub(crate) classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
-    pub(crate) now_status: Arc<Mutex<Vec<StatusFeedbackFrame>>,
+    pub(crate) now_status: Arc<Mutex<Vec<NowStatus>>>,
 
     stop_flags: Arc<AtomicBool>,
     send_handle: Mutex<Option<JoinHandle<()>>>,
@@ -49,10 +51,19 @@ impl CanBus {
                 .collect(),
         ));
 
-        let now_status: Arc<Mutex<Vev<StatusFeedbackFrame>>> = Arc::new(Mutex::new(
-            (motot_start..=motor_stop)
-                .map(|id: u32| StatusFeedbackFrame)
-        ))
+        let now_status: Arc<Mutex<Vec<NowStatus>>> = Arc::new(Mutex::new(
+            (motor_start..=motor_stop)
+                .map(|id: u32| NowStatus {
+                    id,
+                    status: StatusFeedbackFrame {
+                        system_state: FeedBackStatus::IDLE,
+                        rotation_speed: 0f32,
+                        current_a: 0f32,
+                        model: Models::IDLE,
+                        rad: 0f32 }
+                })
+                .collect(),
+        ));
 
         // move rx into send-thread
         let thread_stop_flags = Arc::clone(&stop_flags);
@@ -68,14 +79,15 @@ impl CanBus {
 
         let thread_stop_flags = Arc::clone(&stop_flags);
         let classed_msgs: Arc<Mutex<Vec<MotorMsg>>> = Arc::clone(&classedmsgs);
+        let now_status_thread: Arc<Mutex<Vec<NowStatus>>> = Arc::clone(&now_status);
         let recv_handle = thread::spawn(move || {
-            recv_thread(classed_msgs, &mut recv_socket, thread_stop_flags);
+            recv_thread(classed_msgs,now_status_thread, &mut recv_socket, thread_stop_flags);
         });
 
         Self {
             send_tx,
             classed_msgs: classedmsgs,
-            now_status: ,
+            now_status,
             stop_flags,
             send_handle: Mutex::new(Some(send_handle)),
             recv_handle: Mutex::new(Some(recv_handle)),
@@ -144,6 +156,11 @@ pub(crate) struct MotorMsg {
     pub id: u32,
     pub return_type: VecDeque<u32>,
     pub data_queue: VecDeque<[u8; 8]>,
+}
+
+pub(crate) struct NowStatus {
+    pub id: u32,
+    pub status: StatusFeedbackFrame,
 }
 
 fn recv_can_frame(socket: &mut CanSocket) -> Result<(u32, u32, [u8; 8])> {
@@ -229,6 +246,7 @@ fn send_thread(
 
 fn recv_thread(
     classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
+    now_status: Arc<Mutex<Vec<NowStatus>>>,
     socket1: &mut CanSocket,
     stop_flags: Arc<AtomicBool>,
 ) {
@@ -236,10 +254,10 @@ fn recv_thread(
         if stop_flags.load(Ordering::SeqCst) {
             break;
         }
+
         let (id, return_type, data) = match recv_can_frame(socket1) {
             Ok(frame) => frame,
             Err(error) if error.kind() == std::io::ErrorKind::TimedOut => {
-                // thread::sleep(Duration::from_millis(10));
                 continue;
             }
             Err(error) => {
@@ -249,18 +267,37 @@ fn recv_thread(
         };
 
         if id != 0 {
-            println!("Recv a msg, ID: {id}, Type: {return_type}");
+            // println!("Recv a msg, ID: {id}, Type: {return_type}");
 
-            let mut classed_msgs = classed_msgs.lock().unwrap();
+            if return_type == constants::AllFrameBasic::StatusFeedbackFrame as u32 {
 
-            let _ = classed_msgs
-                .iter_mut()
-                .find(|x| x.id == id)
-                .map(|x| {
-                    x.data_queue.push_back(data);
-                    x.return_type.push_back(return_type);
-                })
-                .ok_or("unknown id");
+                let decoded_msg: StatusFeedbackFrame  = status_feedback_frame(&data).unwrap();
+
+                let mut now_status = now_status.lock().unwrap();
+                let _ = now_status
+                    .iter_mut()
+                    .find(|x| x.id == id)
+                    .map(|x| {
+                        x.status.system_state = decoded_msg.system_state;
+                        x.status.model = decoded_msg.model;
+                        x.status.current_a = decoded_msg.current_a;
+                        x.status.rad = decoded_msg.rad;
+                        x.status.rotation_speed = decoded_msg.rotation_speed;
+                    })
+                    .ok_or("err status flash");
+            } else {
+
+                let mut classed_msgs = classed_msgs.lock().unwrap();
+
+                let _ = classed_msgs
+                    .iter_mut()
+                    .find(|x| x.id == id)
+                    .map(|x| {
+                        x.data_queue.push_back(data);
+                        x.return_type.push_back(return_type);
+                    })
+                    .ok_or("unknown id");
+            }
         }
     }
 }
