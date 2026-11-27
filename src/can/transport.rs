@@ -5,13 +5,11 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError, SyncSender, sync_channel};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
-
 use socketcan::{BlockingCan, CanFrame, CanSocket, EmbeddedFrame, Frame, Socket, StandardId};
-
 use crate::protocol::command::{CMD, build_msg, filter_frame_id};
 use crate::protocol::constants::AllFrameBasic;
-
 use super::constants::{ALIVE_TIMEOUT, INIT_ITER, RECV_TIMEOUT, SEND_TIMEOUT};
+use crate::StatusFeedbackFrame;
 
 /// can bus class
 pub struct CanBus {
@@ -19,6 +17,7 @@ pub struct CanBus {
     pub send_tx: SyncSender<(u32, [u8; 8])>,
     /// classed_msgs: recv thread to main thread
     pub(crate) classed_msgs: Arc<Mutex<Vec<MotorMsg>>>,
+    pub(crate) now_status: Arc<Mutex<Vec<StatusFeedbackFrame>>,
 
     stop_flags: Arc<AtomicBool>,
     send_handle: Mutex<Option<JoinHandle<()>>>,
@@ -34,7 +33,6 @@ impl CanBus {
     pub fn canbus_init(motor_start: u32, motor_stop: u32, can_num: String) -> Self {
         // create a channel for sending CAN frames
         let mut send_socket = can_init(&can_num).expect("failed open can");
-
         let mut recv_socket = can_init(&can_num).expect("failed open can");
 
         let (send_tx, send_rx) = sync_channel::<(u32, [u8; 8])>(100);
@@ -50,6 +48,11 @@ impl CanBus {
                 })
                 .collect(),
         ));
+
+        let now_status: Arc<Mutex<Vev<StatusFeedbackFrame>>> = Arc::new(Mutex::new(
+            (motot_start..=motor_stop)
+                .map(|id: u32| StatusFeedbackFrame)
+        ))
 
         // move rx into send-thread
         let thread_stop_flags = Arc::clone(&stop_flags);
@@ -72,6 +75,7 @@ impl CanBus {
         Self {
             send_tx,
             classed_msgs: classedmsgs,
+            now_status: ,
             stop_flags,
             send_handle: Mutex::new(Some(send_handle)),
             recv_handle: Mutex::new(Some(recv_handle)),
@@ -123,8 +127,8 @@ fn send_can_frame(
     socket.transmit(frame)
 }
 
-fn send_can_keepalive_frame(node_id: u32, socket: &mut CanSocket) {
-    let (id, msg) = build_msg(node_id, CMD::BuildKeepalive);
+fn send_askstatus_canframe(node_id: u32, socket: &mut CanSocket) {
+    let (id, msg) = build_msg(node_id, CMD::BuildAskstatus);
     let can_frame = make_can_frame(id, &msg);
     if let Err(e) = socket.transmit(&can_frame) {
         eprint!("keepalive send error: {e}")
@@ -214,7 +218,7 @@ fn send_thread(
 
         for timer in all_heartbeat_time.iter_mut() {
             if timer.heartbeat_time.elapsed() >= timer.interval {
-                send_can_keepalive_frame(timer.motor_id, socket1);
+                send_askstatus_canframe(timer.motor_id, socket1);
                 timer.heartbeat_time = Instant::now();
             }
         }

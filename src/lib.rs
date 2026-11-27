@@ -9,13 +9,11 @@ mod protocol;
 pub use can::transport::CanBus;
 pub use motor::driver::Motor;
 
-// 门面：命令、返回值、帧类型基址
 pub use protocol::command::{
     CMD, ReturnMessage,
 
 };
 
-// 让 CMD 的每个变体都能被构造
 pub use protocol::constants::{
     Models,
     Direction,
@@ -23,7 +21,6 @@ pub use protocol::constants::{
     ParamFaultID,
 };
 
-// 输出类型：让外部能拿到结构化反馈
 pub use protocol::decode::{
     StatusFeedbackFrame, FaultDetailsFrame, ParameterResponseFrame,
 };

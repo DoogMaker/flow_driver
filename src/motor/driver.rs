@@ -22,6 +22,7 @@ impl Motor {
         Self {
             id,
             can_bus: Arc::clone(&bus),
+            now_status: Arc::
         }
     }
 
